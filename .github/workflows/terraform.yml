@@ -1,0 +1,89 @@
+name: terraform
+
+on:
+  pull_request:
+    paths:
+      - "terraform/**"
+      - "dashboards/**"
+      - ".github/workflows/terraform.yml"
+  push:
+    branches: [main]
+    paths:
+      - "terraform/**"
+      - "dashboards/**"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.14.9"
+          terraform_wrapper: false
+
+      - name: fmt
+        run: terraform fmt -check -recursive
+
+      - name: init (no backend)
+        run: terraform init -backend=false -input=false
+
+      - name: validate
+        run: terraform validate -no-color
+
+  plan:
+    needs: validate
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' && github.secret_source != 'None' }}
+    defaults:
+      run:
+        working-directory: terraform
+    env:
+      GRAFANA_URL:  ${{ secrets.GRAFANA_URL }}
+      GRAFANA_AUTH: ${{ secrets.GRAFANA_AUTH }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.14.9"
+          terraform_wrapper: false
+
+      - name: init
+        run: terraform init -input=false
+
+      - name: plan
+        id: plan
+        run: |
+          set -o pipefail
+          terraform plan -no-color -input=false -lock=false \
+            -out=tfplan 2>&1 | tee plan.txt
+          {
+            echo 'plan<<EOF'
+            tail -c 60000 plan.txt
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+
+      - name: comment on PR
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = `### terraform plan
+            \`\`\`
+            ${{ steps.plan.outputs.plan }}
+            \`\`\``;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.name,
+              body
+            });
