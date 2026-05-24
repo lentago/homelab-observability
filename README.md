@@ -100,10 +100,10 @@ committed to git (see [terraform/README.md](terraform/README.md) for the
 rationale and recovery procedure).
 
 The first apply rewrites datasource UIDs in each dashboard from `loki` /
-`prometheus` (the old self-hosted UIDs) to `grafanacloud-logs` /
-`grafanacloud-prom` (the Cloud equivalents). The original JSON files in
-`dashboards/` are not modified — the rewrite happens in-memory at apply time
-via `replace()` in `terraform/locals.tf`.
+`prometheus` (the old self-hosted UIDs) to `grafanacloud-pitzilabs-logs` /
+`grafanacloud-pitzilabs-prom` (the pitzilabs stack's auto-provisioned UIDs).
+The original JSON files in `dashboards/` are not modified — the rewrite happens
+in-memory at apply time via `replace()` in `terraform/locals.tf`.
 
 ### 3. Delete orphan datasources in Cloud
 
@@ -132,8 +132,8 @@ open http://<lxc-ip>:12345         # Alloy debug UI
 
 After Alloy is up:
 
-- Confirm logs arrive in Cloud: **Explore → grafanacloud-logs** → `{cluster="homelab"}`.
-- Confirm metrics arrive: **Explore → grafanacloud-prom** →
+- Confirm logs arrive in Cloud: **Explore → grafanacloud-pitzilabs-logs** → `{cluster="homelab"}`.
+- Confirm metrics arrive: **Explore → grafanacloud-pitzilabs-prom** →
   `up{cluster="homelab"}` should return 1 for each scrape target.
 - Visit a dashboard (e.g. **Firewalla / Network Overview**) and confirm panels
   render data.

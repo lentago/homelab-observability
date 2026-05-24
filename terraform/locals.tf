@@ -2,12 +2,16 @@ locals {
   dashboards_dir = "${path.module}/../dashboards"
 
   # Dashboard JSON in the repo references the original self-hosted datasource
-  # UIDs ("loki" and "prometheus"). On Grafana Cloud the equivalent datasources
-  # are auto-provisioned with different UIDs. We rewrite the references at apply
+  # UIDs ("loki" and "prometheus"). On Grafana Cloud the pitzilabs stack
+  # auto-provisions datasources with a stack-name prefix. We rewrite at apply
   # time so the JSON files stay portable.
+  #
+  # To verify the UIDs on a live stack:
+  #   curl -s -H "Authorization: Bearer $GRAFANA_AUTH" $GRAFANA_URL/api/datasources \
+  #     | jq '.[] | {uid, name}'
   datasource_uid_rewrites = {
-    "loki"       = "grafanacloud-logs"
-    "prometheus" = "grafanacloud-prom"
+    "loki"       = "grafanacloud-pitzilabs-logs"
+    "prometheus" = "grafanacloud-pitzilabs-prom"
   }
 
   firewalla_dashboards = {

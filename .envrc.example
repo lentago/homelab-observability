@@ -18,11 +18,14 @@ export GRAFANA_SA_TOKEN="glsa_REPLACE_ME"
 export GRAFANA_AUTH="$GRAFANA_SA_TOKEN"
 
 # Alloy → Grafana Cloud Mimir (metrics) — access policy token with metrics:write
-# export GRAFANA_CLOUD_METRICS_USER="2123456"
-# export GRAFANA_CLOUD_METRICS_TOKEN="glc_REPLACE_ME_METRICS"
-# export GRAFANA_CLOUD_METRICS_URL="https://prometheus-prod-XX-prod-us-east-X.grafana.net/api/prom/push"
+# Generate at: https://grafana.com → My Account → Access Policies (scope: metrics:write)
+# The user ID and token come from the generated token details; URL from stack details.
+export GRAFANA_CLOUD_METRICS_USER="REPLACE_ME_METRICS_USER"
+export GRAFANA_CLOUD_METRICS_TOKEN="glc_REPLACE_ME_METRICS"
+export GRAFANA_CLOUD_METRICS_URL="https://prometheus-prod-66-prod-us-east-3.grafana.net/api/prom/push"
 
 # Alloy → Grafana Cloud Loki (logs) — access policy token with logs:write
-# export GRAFANA_CLOUD_LOGS_USER="1234567"
-# export GRAFANA_CLOUD_LOGS_TOKEN="glc_REPLACE_ME_LOGS"
-# export GRAFANA_CLOUD_LOGS_URL="https://logs-prod-XXX.grafana.net/loki/api/v1/push"
+# Generate at: https://grafana.com → My Account → Access Policies (scope: logs:write)
+export GRAFANA_CLOUD_LOGS_USER="REPLACE_ME_LOGS_USER"
+export GRAFANA_CLOUD_LOGS_TOKEN="glc_REPLACE_ME_LOGS"
+export GRAFANA_CLOUD_LOGS_URL="https://logs-prod-042.grafana.net/loki/api/v1/push"
