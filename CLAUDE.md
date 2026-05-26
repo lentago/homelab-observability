@@ -69,8 +69,4 @@ Playlist URLs on self-hosted Grafana are obsolete; use Cloud playlists or a sing
 
 ## Contributing / PRs
 
-When implementation is complete, open a pull request as the final step.
-
-- **PR title**: match or refine the issue title
-- **PR body**: include `Closes #<number>` when applicable, plus a short summary
-- **Merging**: do not merge yourself if repo policy says auto-merge handles it
+PR workflow + auto-merge arming protocol is fleet-wide; see `~/repos/CLAUDE.md`.
