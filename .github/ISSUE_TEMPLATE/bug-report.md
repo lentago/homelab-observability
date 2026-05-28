@@ -22,16 +22,18 @@ assignees: cpitzi
 
 ## Environment
 
-- **Host OS:**
-- **Docker version:**
-- **Docker Compose version:**
-- **Grafana version:**
-- **Loki version:**
-- **Prometheus version:**
+- **Host OS** (LXC where Alloy runs):
+- **Docker / Docker Compose version:**
+- **Alloy image tag** (`docker compose images alloy`):
+- **Grafana Cloud stack** (e.g. `pitzilabs.grafana.net`):
+- **Terraform version** (only if a `terraform plan/apply` is involved):
 
 ## Logs
 
-<!-- Paste relevant output from `docker compose logs <service>`. Redact IPs if sharing publicly. -->
+<!-- Paste relevant output from `docker compose logs alloy` or the Alloy debug UI at :12345. Redact IPs / tokens if sharing publicly. -->
+
+<!-- For Cloud-side issues: sanitized `terraform plan` output, or a screenshot of the affected dashboard panel. -->
+
 
 ```text
 

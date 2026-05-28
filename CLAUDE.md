@@ -34,7 +34,7 @@ scripts/inventory-cloud.sh  # optional snapshot of Cloud API (needs GRAFANA_* en
 ## Key conventions
 
 - **Dashboard UIDs**: `firewalla-<name>` (e.g. `firewalla-network-overview`).
-- **Loki labels**: `log_source` is the main stream selector (`zeek_dns`, `zeek_conn`, `firewalla_acl`). After Alloy → Cloud, queries may also see `cluster="homelab"` from `external_labels` in Alloy — use both if a panel is empty.
+- **Loki labels**: `log_source` is the main stream selector — current values are `zeek_dns`, `zeek_conn`, `zeek_ssl`, `firewalla_acl`. After Alloy → Cloud, queries may also see `cluster="homelab"` from `external_labels` in Alloy — use both if a panel is empty.
 - **Log parsing**: Zeek panels use `| json | line_format "{{.log}}" | json` to unwrap nested JSON.
 - **Template variables**: DNS & Traffic dashboards use `$device_ip` for per-device filtering.
 - **Dashboard JSON**: Grafana schema v39 — no `__inputs` or `__requires` (repo is source of truth, not “import package”).
@@ -57,7 +57,7 @@ Metric panels use `count_over_time`, `rate`, `sum_over_time` (with `unwrap` wher
 
 ## Office display (kiosk)
 
-Self-hosted anonymous Viewer URLs **no longer apply**. Use **public dashboard sharing** for `firewalla-office-display` (see README § “Office display”). The dashboard still mixes Mimir + Loki panels; CPU/RAM filters use `192.168.139.8.*` / `192.168.139.7.*` — change in `dashboards/office-display.json` if node_exporter IPs differ.
+Self-hosted anonymous Viewer URLs **no longer apply**. Use **public dashboard sharing** for `firewalla-office-display` (see README § “Office display”). The dashboard mixes Mimir + Loki panels. Prometheus queries use the **friendly label scheme Alloy publishes** — `instance="pve"` / `"pve2"` for `node_exporter`, and `job="integrations/blackbox/<target_name>"` (e.g. `firewalla`, `pve`, `pve2`, `neptune`, `ap-office`, `homeassistant-icmp`, `homeassistant-http`, `alloy`, `grafana-cloud`) for blackbox probes. The target IP/URL lives in the Alloy config, not in the dashboard query — if a target moves, edit `alloy/config.alloy` (no dashboard change needed). If the target is renamed, update the dashboard's job-label match.
 
 Playlist URLs on self-hosted Grafana are obsolete; use Cloud playlists or a single public dashboard URL.
 

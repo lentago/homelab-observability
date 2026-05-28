@@ -5,8 +5,9 @@ data sources, contact points, notification policies, alert rules, and service ac
 
 Dashboard JSON files live in [`../dashboards/`](../dashboards/) and are the source of truth.
 Terraform rewrites the original self-hosted datasource UIDs (`loki`, `prometheus`) to the
-Grafana Cloud equivalents (`grafanacloud-logs`, `grafanacloud-prom`) at apply time, so the
-JSON files stay portable.
+Grafana Cloud equivalents (`grafanacloud-pitzilabs-logs`, `grafanacloud-pitzilabs-prom`) at
+apply time, so the JSON files stay portable. The exact mapping lives in
+[`locals.tf`](locals.tf) — when the stack name changes, update the targets there.
 Terraform reads them via `file()` and pushes them to Grafana Cloud — never the other way
 around. Drift introduced via the Grafana UI gets overwritten on the next `apply`.
 
