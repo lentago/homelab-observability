@@ -120,9 +120,22 @@ else
   # once the empty word drops out. `${SUDO} env VAR=val cmd` is correct for both
   # the root (SUDO="") and sudo (SUDO="sudo") cases.
   info "Installing alloy..."
-  ${SUDO} env DEBIAN_FRONTEND=noninteractive apt-get install -y -o DPkg::Lock::Timeout="120" alloy \
-    || fail "apt-get install alloy failed."
-  success "Alloy installed."
+  if ${SUDO} env DEBIAN_FRONTEND=noninteractive apt-get install -y -o DPkg::Lock::Timeout="120" alloy; then
+    success "Alloy installed."
+  else
+    # apt-get install refuses if the system has *any* unrelated broken/unmet
+    # deps (e.g. neptune/UGOS ships picom + qemu-block-extra with uninstallable
+    # deps). `apt-get download` fetches the .deb without a full-system solve, and
+    # `dpkg -i` installs it checking only alloy's own (minimal) deps.
+    warn "apt-get install failed — falling back to direct .deb install (bypasses unrelated broken apt state)."
+    tmpdeb="$(mktemp -d)"
+    ( cd "${tmpdeb}" && ${SUDO} apt-get download -o DPkg::Lock::Timeout="120" alloy ) \
+      || { ${SUDO} rm -rf "${tmpdeb}"; fail "apt-get download alloy failed."; }
+    ${SUDO} dpkg -i "${tmpdeb}"/alloy_*.deb \
+      || { ${SUDO} rm -rf "${tmpdeb}"; fail "dpkg -i alloy failed (alloy has unmet deps of its own)."; }
+    ${SUDO} rm -rf "${tmpdeb}"
+    success "Alloy installed via direct .deb."
+  fi
 fi
 
 # ---------------------------------------------------------------------------
