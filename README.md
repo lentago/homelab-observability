@@ -224,6 +224,22 @@ a host to push, delete it from the central `prometheus.scrape "node"` block.
 The rollout target is neptune + all five Proxmox nodes on push; HAOS stays on
 the central HA `/api/prometheus` scrape (it can't run a system Alloy).
 
+### Series budget / HA export trim
+
+Grafana Cloud free tier caps **active series at 15,000**. Home Assistant's
+`/api/prometheus` export is the single biggest consumer — it emits a series
+for nearly every entity plus per-entity change-counters, "last updated"
+timestamps, availability flags, and `*_created` markers. None of that is used
+by any dashboard, so the `prometheus.relabel "ha_trim"` component in
+[`alloy/config.alloy`](alloy/config.alloy) drops those families before
+remote_write, reclaiming ~5.8k series. The real numeric HA metrics
+(temperatures, fan RPM, battery, climate, brightness, sensor states) are kept.
+
+Check current usage with the `grafanacloud-usage` datasource:
+`grafanacloud_instance_active_series`. If you add a host (each node_exporter is
+~1.3k series), watch the headroom — trim more (e.g. node_exporter discard/flush
+families) or the rollout will hit `err-mimir-max-active-series`.
+
 ## Why this layout
 
 The original incarnation of this repo ran Loki, Prometheus, Grafana, and
