@@ -2,8 +2,8 @@
 
 How telemetry gets from the homelab into Grafana Cloud, after the move to
 **host-local Alloy push** for node metrics (see README §
-"Collection models"). This is the canonical flow diagram — the older
-`docs/architecture.svg` predates the push model and is no longer accurate.
+"Collection models"). This is the canonical flow diagram, replacing an earlier hand-drawn diagram
+from the pull-model era.
 
 ```mermaid
 flowchart LR
