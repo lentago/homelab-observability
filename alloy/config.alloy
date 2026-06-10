@@ -147,10 +147,26 @@ prometheus.scrape "homeassistant" {
       instance         = "homeassistant",
     },
   ]
-  forward_to      = [prometheus.remote_write.cloud.receiver]
+  forward_to      = [prometheus.relabel.ha_trim.receiver]
   scrape_interval = "60s"
   job_name        = "homeassistant"
   bearer_token    = local.file.ha_token.content
+}
+
+// Drop high-cardinality Home Assistant export noise that no dashboard uses:
+// per-entity state-change counters, last-updated timestamps, availability
+// flags, info-labels, and *_created series. Frees ~5.8k active series on the
+// 15k free-tier cap. The real numeric sensor/state metrics (temperatures,
+// fan RPM, battery, climate, brightness, …) are kept. See README § "HA export
+// trim". If you later want HA entity-availability alerting, drop
+// "entity_available" from the regex below.
+prometheus.relabel "ha_trim" {
+  forward_to = [prometheus.remote_write.cloud.receiver]
+  rule {
+    source_labels = ["__name__"]
+    regex         = "homeassistant_(state_change_total|state_change_created|last_updated_time_seconds|entity_available|entity_info|area_info|.+_created)"
+    action        = "drop"
+  }
 }
 
 prometheus.remote_write "cloud" {
