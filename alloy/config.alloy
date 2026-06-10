@@ -107,16 +107,30 @@ prometheus.scrape "blackbox" {
 
 prometheus.scrape "node" {
   // pve3/pve5 are DHCP leases on the Firewalla; pin static reservations there
-  // if the IPs reshuffle. Neptune (.6) is a static reservation.
+  // if the IPs reshuffle. Neptune (.6, static reservation) is scraped by the
+  // separate "node_neptune" block below at a tighter 15s interval.
   targets = [
     { __address__ = "192.168.139.8:9100",   instance = "pve" },
     { __address__ = "192.168.139.7:9100",   instance = "pve2" },
     { __address__ = "192.168.139.55:9100",  instance = "pve3" },
     { __address__ = "192.168.139.230:9100", instance = "pve5" },
-    { __address__ = "192.168.139.6:9100",   instance = "neptune" },
   ]
   forward_to      = [prometheus.remote_write.cloud.receiver]
   scrape_interval = "30s"
+  job_name        = "node"
+}
+
+prometheus.scrape "node_neptune" {
+  // Neptune (NAS) gets a tighter 15s scrape so the dedicated "Neptune NAS"
+  // dashboard shows near-real-time disk/network/CPU activity. Same job_name and
+  // instance labels as the "node" job, so existing queries are unchanged.
+  // Will be superseded by a host-local Alloy push agent on neptune as the
+  // per-host Alloy standardization rolls out (scripts/deploy-alloy.sh).
+  targets = [
+    { __address__ = "192.168.139.6:9100", instance = "neptune" },
+  ]
+  forward_to      = [prometheus.remote_write.cloud.receiver]
+  scrape_interval = "15s"
   job_name        = "node"
 }
 
