@@ -78,6 +78,10 @@ Self-hosted anonymous Viewer URLs **no longer apply**. Use **public dashboard sh
 
 Playlist URLs on self-hosted Grafana are obsolete; use Cloud playlists or a single public dashboard URL.
 
+## Deploying the central Alloy config
+
+The Alloy on the grafana-stack LXC is **gitops-managed** — do NOT hand-edit the config on the box. Merge to `main`; `alloy-gitops.timer` (every 5 min) pulls, validates with `alloy fmt`, and reloads on drift (`SIGHUP` for `alloy/` changes via the `./alloy` **directory** mount; `docker compose up -d` for compose changes). Force a deploy: `systemctl start alloy-gitops.service` on the LXC. Bootstrap + ops: [`alloy-host/README.md`](alloy-host/README.md). (History: the box used to run a hand-copied, non-git config dir + single-file mounts, so reloads silently read stale inodes — fixed by the dir mount + this loop.)
+
 ## Testing changes
 
 - Validate dashboard JSON: `python3 -m json.tool dashboards/<file>.json > /dev/null`

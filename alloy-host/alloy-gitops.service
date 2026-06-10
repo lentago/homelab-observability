@@ -1,0 +1,13 @@
+[Unit]
+Description=Pull central Alloy config from git and reload the collector
+Documentation=https://github.com/PitziLabs/homelab-observability/blob/main/alloy-host/README.md
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/homelab-observability/alloy-host/gitops-pull.sh
+# The script exits 0 on no-op, so a non-zero exit is a real error worth
+# surfacing in `systemctl status` and journalctl.
+StandardOutput=journal
+StandardError=journal

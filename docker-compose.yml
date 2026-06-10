@@ -12,9 +12,12 @@ services:
       - "3100:3100"   # Loki push receiver (Promtail on the Firewalla points here)
       - "12345:12345" # Alloy debug UI (http://<host>:12345)
     volumes:
-      - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
-      - ./alloy/blackbox.yml:/etc/alloy/blackbox.yml:ro
-      - ./alloy/ha_token:/etc/alloy/ha_token:ro
+      # Mount the whole alloy/ dir (not individual files) so a git-driven
+      # config update — which replaces files with new inodes — is visible to the
+      # container. With single-file bind mounts the container keeps reading the
+      # original inode after an atomic-replace, so a SIGHUP reload sees stale
+      # config. Directory mounts resolve paths live, so reloads pick up changes.
+      - ./alloy:/etc/alloy:ro
       - alloy-data:/var/lib/alloy/data
     environment:
       GRAFANA_CLOUD_METRICS_URL:   "${GRAFANA_CLOUD_METRICS_URL}"

@@ -1,0 +1,14 @@
+[Unit]
+Description=Periodic gitops pull for the central Alloy config
+Documentation=https://github.com/PitziLabs/homelab-observability/blob/main/alloy-host/README.md
+
+[Timer]
+# 2-minute settle after boot so docker + the alloy container come up first.
+OnBootSec=2min
+OnUnitActiveSec=5min
+AccuracySec=30s
+Persistent=true
+Unit=alloy-gitops.service
+
+[Install]
+WantedBy=timers.target

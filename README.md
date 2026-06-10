@@ -49,6 +49,10 @@ alloy/
   config.alloy                 # Alloy collector config (scrape + push + receive)
   blackbox.yml                 # blackbox prober module definitions
   ha_token.example             # template; real ha_token is gitignored
+alloy-host/                    # gitops deploy for the central Alloy on the LXC
+  gitops-pull.sh               # 5-min pull + validate + reload-on-drift
+  alloy-gitops.{service,timer} # systemd units (bootstrap-only)
+  README.md                    # bootstrap + ops
 dashboards/                    # source of truth for Grafana dashboard JSON
   network-overview.json
   dns-security.json
@@ -186,8 +190,13 @@ comment. Applies stay local.
 
 ### Add new scrape targets / new log sources
 
-Edit [`alloy/config.alloy`](alloy/config.alloy) and `docker compose up -d` (Alloy
-hot-reloads on file change). No service restart needed.
+Edit [`alloy/config.alloy`](alloy/config.alloy), open a PR, merge. The central
+Alloy on the grafana-stack LXC is **gitops-managed**: `alloy-gitops.timer`
+pulls `origin/main` every 5 minutes, validates with `alloy fmt`, and reloads the
+collector on drift (`SIGHUP` for `alloy/` changes, `docker compose up -d` for
+compose changes). No hand-editing on the LXC — see
+[`alloy-host/README.md`](alloy-host/README.md). To deploy immediately instead of
+waiting for the timer: `systemctl start alloy-gitops.service` on the LXC.
 
 ### node_exporter
 
