@@ -55,6 +55,7 @@ dashboards/                    # source of truth for Grafana dashboard JSON
   traffic-devices.json
   infra-health.json
   office-display.json
+  neptune-nas.json             # Neptune NAS real-time activity (CPU/disk/net/RAID/temps)
 terraform/                     # manages Cloud-side resources
   *.tf
 scripts/

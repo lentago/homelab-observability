@@ -35,6 +35,10 @@ locals {
       uid  = "firewalla-office-display"
       file = "office-display.json"
     }
+    neptune_nas = {
+      uid  = "firewalla-neptune-nas"
+      file = "neptune-nas.json"
+    }
   }
 
   # Read each dashboard JSON file and rewrite datasource UIDs in one pass.
