@@ -65,6 +65,16 @@ for v in GRAFANA_CLOUD_METRICS_URL GRAFANA_CLOUD_METRICS_USER GRAFANA_CLOUD_METR
   [[ -n "${!v:-}" ]] || fail "Required env var ${v} is not set — 'source .envrc' first."
 done
 
+# Catch un-expanded placeholders (e.g. a single-quoted '$GRAFANA_...' that never
+# expanded) before we write bad creds. The URL is non-secret, safe to echo.
+case "${GRAFANA_CLOUD_METRICS_URL}" in
+  https://*) ;;
+  *) fail "GRAFANA_CLOUD_METRICS_URL is '${GRAFANA_CLOUD_METRICS_URL}', not an https URL — the var didn't expand. Run from the repo with '.envrc' sourced." ;;
+esac
+case "${GRAFANA_CLOUD_METRICS_URL}${GRAFANA_CLOUD_METRICS_USER}${GRAFANA_CLOUD_METRICS_TOKEN}" in
+  *'$'*) fail "A Grafana Cloud credential contains a literal '\$' — the env vars weren't expanded. Source '.envrc' and pass real values, not single-quoted placeholders." ;;
+esac
+
 # ---------------------------------------------------------------------------
 # Prerequisite — node_exporter must already be serving on :9100
 # ---------------------------------------------------------------------------
@@ -105,8 +115,12 @@ else
     -o DPkg::Lock::Timeout="120" \
     || fail "Failed to refresh the Grafana apt repo index."
 
+  # Use `env` to set DEBIAN_FRONTEND: when running as root SUDO is empty, and a
+  # bare `${SUDO} VAR=val cmd` makes bash try to execute `VAR=val` as a command
+  # once the empty word drops out. `${SUDO} env VAR=val cmd` is correct for both
+  # the root (SUDO="") and sudo (SUDO="sudo") cases.
   info "Installing alloy..."
-  ${SUDO} DEBIAN_FRONTEND=noninteractive apt-get install -y -o DPkg::Lock::Timeout="120" alloy \
+  ${SUDO} env DEBIAN_FRONTEND=noninteractive apt-get install -y -o DPkg::Lock::Timeout="120" alloy \
     || fail "apt-get install alloy failed."
   success "Alloy installed."
 fi
