@@ -36,6 +36,28 @@ conventions: [docs/metrics-flow.md](docs/metrics-flow.md).**
                                                   public share ──▶ Office Display
 ```
 
+## Loki output contract
+
+Firewalla ships logs to Alloy via a Promtail-compatible push endpoint at
+**`192.168.139.20:3100`** (`/loki/api/v1/push`). Alloy forwards every stream to
+Grafana Cloud Loki under the `cluster="homelab"` external label, which it
+injects automatically — queries may filter on it or omit it.
+
+The four active log streams, keyed by `log_source`:
+
+| `log_source` | Contents |
+|---|---|
+| `zeek_dns` | DNS query/response records from Zeek — domain, query type, client IP, answer. |
+| `zeek_conn` | TCP/UDP connection summaries — src/dst IP and port, bytes, duration, state. |
+| `zeek_ssl` | TLS handshake records — SNI, certificate subject, cipher, validation status. |
+| `firewalla_acl` | Firewalla ACL alarm events — blocked/allowed flows, rule name, severity. |
+
+**Change coordination:** the Firewalla side of this pipeline lives in
+[PitziLabs/firewalla-axiom-pipeline](https://github.com/PitziLabs/firewalla-axiom-pipeline).
+Any change to the `log_source` values or the push endpoint above must be
+coordinated with that repo (see its issue #42, which shipped the current label
+scheme) so both sides stay in sync.
+
 ## Repo layout
 
 ```
