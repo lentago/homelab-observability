@@ -394,6 +394,62 @@
       ]
     },
     {
+      "id": 10,
+      "type": "timeseries",
+      "title": "Runners underway",
+      "description": "Per-worker busy signal from the bullpen run-job heartbeat (event=\"job_running\", pushed to Loki every ~30s while a job is in flight). A band at 1 means that worker was actively running a job; gaps are idle. Empty until the heartbeat ships from the workers and a job runs.",
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 20
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "max": 1,
+          "decimals": 0,
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "fillOpacity": 40,
+            "spanNulls": false,
+            "showPoints": "auto",
+            "pointSize": 5
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "queryType": "range",
+          "expr": "max by (worker) (count_over_time({job=\"claude_runner\", project=~\"$project\"} | json | event=\"job_running\" [$__auto]) > bool 0)",
+          "legendFormat": "{{worker}}"
+        }
+      ]
+    },
+    {
       "id": 9,
       "type": "table",
       "title": "Open agent PRs (awaiting local review)",
@@ -402,7 +458,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 26
       },
       "datasource": {
         "type": "yesoreyeram-infinity-datasource",
@@ -559,7 +615,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 27
+        "y": 33
       }
     },
     {
@@ -570,7 +626,7 @@
         "h": 4,
         "w": 6,
         "x": 0,
-        "y": 28
+        "y": 34
       },
       "datasource": {
         "type": "loki",
@@ -613,7 +669,7 @@
         "h": 4,
         "w": 6,
         "x": 6,
-        "y": 28
+        "y": 34
       },
       "datasource": {
         "type": "loki",
@@ -657,7 +713,7 @@
         "h": 4,
         "w": 6,
         "x": 12,
-        "y": 28
+        "y": 34
       },
       "datasource": {
         "type": "loki",
@@ -700,7 +756,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 28
+        "y": 34
       },
       "datasource": {
         "type": "loki",
@@ -743,7 +799,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 32
+        "y": 38
       },
       "datasource": {
         "type": "loki",
@@ -782,7 +838,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 32
+        "y": 38
       },
       "datasource": {
         "type": "loki",
@@ -821,7 +877,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 40
+        "y": 46
       },
       "datasource": {
         "type": "loki",
