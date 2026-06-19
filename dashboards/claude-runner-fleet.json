@@ -412,7 +412,7 @@
       "id": 10,
       "type": "timeseries",
       "title": "Runners underway",
-      "description": "Per-worker busy signal from the bullpen run-job heartbeat (event=\"job_running\", pushed to Loki every ~30s while a job is in flight). Stacked: each running worker contributes 1, so the band height is the number of runners underway at once and each colored layer is one worker. Gaps (height 0) are idle. Empty until the heartbeat ships from the workers and a job runs.",
+      "description": "Per-worker busy signal from the bullpen run-job heartbeat (event=\"job_running\", pushed to Loki every ~30s while a job is in flight). Stacked: each running worker contributes 1, so the band height is the number of runners underway at once. Color = model (purple=opus, blue=sonnet, green=haiku, grey=default/unset); each colored layer is one worker+model pair. Gaps (height 0) are idle. Empty until the heartbeat ships from the workers and a job runs.",
       "gridPos": {
         "x": 0,
         "y": 0,
@@ -441,7 +441,69 @@
               "group": "A"
             }
           }
-        }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/opus/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "purple"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/sonnet/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "blue"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/haiku/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/default/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "gray"
+                }
+              }
+            ]
+          }
+        ]
       },
       "options": {
         "legend": {
@@ -462,8 +524,8 @@
             "uid": "loki"
           },
           "queryType": "range",
-          "expr": "max by (worker) (count_over_time({job=\"claude_runner\", project=~\"$project\"} | json | event=\"job_running\" [2m]) > bool 0)",
-          "legendFormat": "{{worker}}"
+          "expr": "max by (worker, model) (count_over_time({job=\"claude_runner\", project=~\"$project\"} | json | event=\"job_running\" [2m]) > bool 0)",
+          "legendFormat": "{{worker}} \u00b7 {{model}}"
         }
       ]
     },
