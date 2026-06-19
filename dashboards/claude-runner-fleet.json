@@ -62,7 +62,68 @@
     ]
   },
   "annotations": {
-    "list": []
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": {
+          "type": "loki",
+          "uid": "loki"
+        },
+        "enable": true,
+        "expr": "{job=\"claude_runner\", project=~\"$project\"} | json | event=\"job_complete\" | status=\"success\"",
+        "hide": false,
+        "iconColor": "green",
+        "name": "Task ended (success)",
+        "step": "60s",
+        "tagKeys": "project,runid",
+        "textFormat": "done {{.project}} #{{.runid}}",
+        "titleFormat": "Task complete",
+        "type": "default"
+      },
+      {
+        "datasource": {
+          "type": "loki",
+          "uid": "loki"
+        },
+        "enable": true,
+        "expr": "{job=\"claude_runner\", project=~\"$project\"} | json | event=\"job_complete\" | status=\"failed\"",
+        "hide": false,
+        "iconColor": "red",
+        "name": "Task ended (failed)",
+        "step": "60s",
+        "tagKeys": "project,runid",
+        "textFormat": "failed {{.project}} #{{.runid}}",
+        "titleFormat": "Task failed",
+        "type": "default"
+      },
+      {
+        "datasource": {
+          "type": "loki",
+          "uid": "loki"
+        },
+        "enable": true,
+        "expr": "{job=\"claude_runner\", project=~\"$project\"} | json | event=\"job_started\"",
+        "hide": false,
+        "iconColor": "blue",
+        "name": "Task started",
+        "step": "60s",
+        "tagKeys": "project,runid",
+        "textFormat": "start {{.project}} #{{.runid}}",
+        "titleFormat": "Task started",
+        "type": "default"
+      }
+    ]
   },
   "panels": [
     {
