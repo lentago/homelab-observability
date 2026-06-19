@@ -475,7 +475,7 @@
       "id": 10,
       "type": "timeseries",
       "title": "Runners underway",
-      "description": "Concurrent in-flight jobs from the bullpen run-job heartbeat (event=\"job_running\", pushed to Loki every ~10s while a job is in flight). Counts distinct in-flight jobs by runid over a 20s window, so the line height is the number of jobs underway at once (ceiling = number of single-threaded workers). Gaps (height 0) are idle. Empty until the heartbeat ships from the workers and a job runs.",
+      "description": "Concurrent busy workers from the bullpen run-job heartbeat (event=\"job_running\", pushed to Loki every ~10s while a job is in flight). Counts distinct busy workers by worker label over a 15s window, so the line height is the number of workers underway at once (ceiling = number of single-threaded workers). Keying on worker (not runid) avoids over-counting during back-to-back job handoffs on the same worker. Gaps (height 0) are idle. Empty until the heartbeat ships from the workers and a job runs.",
       "gridPos": {
         "x": 0,
         "y": 0,
@@ -526,7 +526,7 @@
             "uid": "loki"
           },
           "queryType": "range",
-          "expr": "count(max by (runid) (count_over_time({job=\"claude_runner\", project=~\"$project\"} | json | event=\"job_running\" [20s]) > bool 0)) or vector(0)",
+          "expr": "count(max by (worker) (count_over_time({job=\"claude_runner\", project=~\"$project\"} | json | event=\"job_running\" [15s]) > bool 0)) or vector(0)",
           "legendFormat": "runners underway"
         }
       ]
