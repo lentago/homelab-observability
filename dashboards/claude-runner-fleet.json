@@ -36,6 +36,7 @@
         },
         "query": "label_values({job=\"claude_runner\"}, project)",
         "includeAll": true,
+        "allValue": ".*",
         "multi": true,
         "current": {
           "text": "All",
@@ -51,6 +52,7 @@
         },
         "query": "label_values({job=\"claude_transcript\"}, worker)",
         "includeAll": true,
+        "allValue": ".*",
         "multi": true,
         "current": {
           "text": "All",
