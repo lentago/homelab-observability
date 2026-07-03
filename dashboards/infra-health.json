@@ -41,7 +41,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(probe_success{job=\"icmp_ping\"})",
+          "expr": "sum(probe_success{job=~\"integrations/blackbox/(firewalla|ap-office|pve|pve2|neptune|homeassistant-icmp)\"})",
           "legendFormat": "Up",
           "instant": true
         }
@@ -83,8 +83,8 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "probe_success{job=\"icmp_ping\"}",
-          "legendFormat": "{{instance}}",
+          "expr": "label_replace(probe_success{job=~\"integrations/blackbox/(firewalla|ap-office|pve|pve2|neptune|homeassistant-icmp)\"}, \"target\", \"$1\", \"job\", \"integrations/blackbox/(.*)\")",
+          "legendFormat": "{{target}}",
           "instant": true
         }
       ],
@@ -142,8 +142,8 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "probe_success{job=\"http_probe\"}",
-          "legendFormat": "{{instance}}",
+          "expr": "label_replace(probe_success{job=~\"integrations/blackbox/(homeassistant-http|alloy|grafana-cloud)\"}, \"target\", \"$1\", \"job\", \"integrations/blackbox/(.*)\")",
+          "legendFormat": "{{target}}",
           "instant": true
         }
       ],
@@ -201,8 +201,8 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "probe_duration_seconds{job=\"icmp_ping\"} * 1000",
-          "legendFormat": "{{instance}}"
+          "expr": "label_replace(probe_duration_seconds{job=~\"integrations/blackbox/(firewalla|ap-office|pve|pve2|neptune|homeassistant-icmp)\"}, \"target\", \"$1\", \"job\", \"integrations/blackbox/(.*)\") * 1000",
+          "legendFormat": "{{target}}"
         }
       ],
       "fieldConfig": {
@@ -256,8 +256,8 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "probe_duration_seconds{job=\"icmp_ping\"} * 1000",
-          "legendFormat": "{{instance}}",
+          "expr": "label_replace(probe_duration_seconds{job=~\"integrations/blackbox/(firewalla|ap-office|pve|pve2|neptune|homeassistant-icmp)\"}, \"target\", \"$1\", \"job\", \"integrations/blackbox/(.*)\") * 1000",
+          "legendFormat": "{{target}}",
           "instant": true
         }
       ],
@@ -307,8 +307,8 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "probe_http_duration_seconds{job=\"http_probe\", phase=\"transfer\"} * 1000",
-          "legendFormat": "{{instance}}"
+          "expr": "label_replace(probe_http_duration_seconds{job=~\"integrations/blackbox/(homeassistant-http|alloy|grafana-cloud)\", phase=\"transfer\"}, \"target\", \"$1\", \"job\", \"integrations/blackbox/(.*)\") * 1000",
+          "legendFormat": "{{target}}"
         }
       ],
       "fieldConfig": {
@@ -574,7 +574,7 @@
       "type": "timeseries",
       "title": "Network Traffic",
       "description": "Network receive/transmit throughput per interface (excludes loopback and virtual interfaces)",
-      "gridPos": { "x": 0, "y": 43, "w": 12, "h": 7 },
+      "gridPos": { "x": 0, "y": 43, "w": 24, "h": 7 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
@@ -626,49 +626,6 @@
       }
     },
     {
-      "id": 19,
-      "type": "stat",
-      "title": "ZFS ARC Hit Rate",
-      "description": "ZFS ARC cache hit rate (%). Shows No data on hosts without ZFS pools — expected for pve; only pve2 has ZFS.",
-      "gridPos": { "x": 12, "y": 43, "w": 12, "h": 7 },
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "node_zfs_arcstats_hits / (node_zfs_arcstats_hits + node_zfs_arcstats_misses) * 100",
-          "legendFormat": "{{instance}}",
-          "instant": true
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "value": null, "color": "red" },
-              { "value": 80, "color": "yellow" },
-              { "value": 90, "color": "green" }
-            ]
-          },
-          "color": { "mode": "thresholds" }
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "orientation": "auto",
-        "textMode": "auto",
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "auto"
-      }
-    },
-    {
       "id": 11,
       "type": "row",
       "title": "Probe Details",
@@ -686,13 +643,13 @@
       "targets": [
         {
           "refId": "status",
-          "expr": "probe_success",
+          "expr": "label_replace(probe_success, \"target\", \"$1\", \"job\", \"integrations/blackbox/(.*)\")",
           "instant": true,
           "format": "table"
         },
         {
           "refId": "duration",
-          "expr": "probe_duration_seconds * 1000",
+          "expr": "label_replace(probe_duration_seconds, \"target\", \"$1\", \"job\", \"integrations/blackbox/(.*)\") * 1000",
           "instant": true,
           "format": "table"
         }
@@ -707,12 +664,13 @@
           "options": {
             "excludeByName": {
               "Time": true,
-              "__name__": true
+              "__name__": true,
+              "instance": true,
+              "job": true
             },
             "indexByName": {},
             "renameByName": {
-              "instance": "Target",
-              "job": "Probe Type",
+              "target": "Target",
               "Value #status": "Status",
               "Value #duration": "Latency (ms)"
             }
