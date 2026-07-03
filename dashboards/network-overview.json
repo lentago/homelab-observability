@@ -278,7 +278,7 @@
           "id": "organize",
           "options": {
             "excludeByName": { "Time": true },
-            "renameByName": { "id_orig_h": "Device IP", "Value": "Events" }
+            "renameByName": { "id_orig_h": "Device IP", "Value #A": "Events" }
           }
         }
       ],

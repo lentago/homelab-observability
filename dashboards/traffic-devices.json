@@ -246,7 +246,7 @@
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Value" },
+            "matcher": { "id": "byName", "options": "Value #A" },
             "properties": [
               { "id": "displayName", "value": "Connections" },
               { "id": "custom.cellOptions", "value": { "type": "color-background", "mode": "gradient" } }
@@ -347,7 +347,7 @@
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Value" },
+            "matcher": { "id": "byName", "options": "Value #A" },
             "properties": [
               { "id": "displayName", "value": "Connections" }
             ]
@@ -427,7 +427,7 @@
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Value" },
+            "matcher": { "id": "byName", "options": "Value #A" },
             "properties": [
               { "id": "displayName", "value": "Connections" }
             ]
@@ -500,7 +500,7 @@
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Value" },
+            "matcher": { "id": "byName", "options": "Value #A" },
             "properties": [
               { "id": "displayName", "value": "Bytes Sent" },
               { "id": "custom.cellOptions", "value": { "type": "color-background", "mode": "gradient" } }
@@ -559,7 +559,7 @@
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Value" },
+            "matcher": { "id": "byName", "options": "Value #A" },
             "properties": [
               { "id": "displayName", "value": "Bytes Received" },
               { "id": "custom.cellOptions", "value": { "type": "color-background", "mode": "gradient" } }
