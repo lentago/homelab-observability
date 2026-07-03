@@ -274,7 +274,7 @@
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Value" },
+            "matcher": { "id": "byName", "options": "Queries" },
             "properties": [
               { "id": "displayName", "value": "Queries" }
             ]
@@ -291,7 +291,7 @@
           "id": "organize",
           "options": {
             "excludeByName": { "Time": true },
-            "renameByName": { "query": "Domain", "Value": "Queries" }
+            "renameByName": { "query": "Domain", "Value #A": "Queries" }
           }
         }
       ]
@@ -341,7 +341,7 @@
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Value" },
+            "matcher": { "id": "byName", "options": "Value #A" },
             "properties": [
               { "id": "displayName", "value": "NXDOMAIN Count" },
               { "id": "custom.cellOptions", "value": { "type": "color-background", "mode": "gradient" } }
@@ -444,7 +444,7 @@
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Value" },
+            "matcher": { "id": "byName", "options": "Value #A" },
             "properties": [
               { "id": "displayName", "value": "NXDOMAIN Count" }
             ]
