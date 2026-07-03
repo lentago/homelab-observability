@@ -234,7 +234,7 @@
       },
       "options": {
         "tooltip": { "mode": "single", "sort": "none" },
-        "legend": { "displayMode": "hidden" }
+        "legend": { "showLegend": false, "displayMode": "list", "placement": "bottom" }
       }
     },
     {
@@ -513,7 +513,7 @@
       },
       "options": {
         "tooltip": { "mode": "single", "sort": "none" },
-        "legend": { "displayMode": "hidden" }
+        "legend": { "showLegend": false, "displayMode": "list", "placement": "bottom" }
       }
     },
     {
