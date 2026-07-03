@@ -20,25 +20,22 @@
     "list": [
       {
         "name": "device_ip",
-        "type": "custom",
+        "type": "textbox",
         "label": "Device IP",
-        "description": "Filter by source device IP",
-        "query": "",
+        "description": "Filter by source device IP (regex; .+ = all)",
+        "query": ".+",
         "current": {
-          "text": "All",
-          "value": "$__all",
+          "text": ".+",
+          "value": ".+",
           "selected": true
         },
         "options": [
           {
-            "text": "All",
-            "value": "$__all",
+            "text": ".+",
+            "value": ".+",
             "selected": true
           }
-        ],
-        "includeAll": true,
-        "allValue": ".+",
-        "multi": false
+        ]
       }
     ]
   },
