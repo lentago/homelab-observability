@@ -91,6 +91,13 @@ consumes zero free-tier active series. Queries bill as CloudWatch
   re-pointing, and "No data" while the platform is down is correct behavior.
 - **Alerting stays AWS-native** (CloudWatch alarms → SNS; solidago ADR-0001) —
   Grafana is visualization only.
+- **Known health-check quirk:** the datasource's Save & test / health endpoint
+  probes CloudWatch **Logs** as well as metrics, so it reports
+  `AccessDeniedException … logs:DescribeLogGroups` alongside "Successfully
+  queried the CloudWatch metrics API". That is **expected, not a fault** — the
+  role is metrics-only by design (logs belong to Axiom/betula, per ADR-0001's
+  boundary). Metrics green = healthy. Verified end-to-end 2026-07-04
+  (assume-role query returned live ALB series for all three target groups).
 
 ## Repo layout
 
