@@ -149,7 +149,7 @@ ${SUDO} install -d -m 0755 /etc/alloy
 ${SUDO} tee /etc/alloy/config.alloy >/dev/null <<'ALLOY_EOF'
 // Host-local Alloy agent (push / remote_write model).
 //
-// Managed by scripts/deploy-alloy.sh in lentago/homelab-observability —
+// Managed by scripts/deploy-alloy.sh in lentago/drosera —
 // edit there, re-run the script; do NOT hand-edit on the host.
 //
 // Metrics: scrapes node_exporter on localhost:9100 → remote_write to Mimir @15s

@@ -111,7 +111,7 @@ HOOK="${POST_MAIN_D}/reinstall-device-inventory-cron.sh"
 # hook; the \${…} refs stay literal so the hook uses its own vars at run time.
 cat > "${HOOK}" <<HOOK_EOF
 #!/usr/bin/env bash
-# Managed by deploy-device-inventory-publisher.sh (homelab-observability, #113).
+# Managed by deploy-device-inventory-publisher.sh (drosera, #113).
 # Firewalla runs post_main.d/*.sh on FireMain startup; this re-installs the
 # hourly device-inventory publisher cron for pi in case FireMain reset crontab.
 set -eu

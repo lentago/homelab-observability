@@ -25,10 +25,10 @@ jobs:
     secrets: inherit
     with:
       review_prompt: |
-        This repository is a self-hosted observability stack (Grafana + Loki +
-        Prometheus + blackbox_exporter) running in Docker Compose on a Proxmox
+        This repository is lentago/drosera — the Lentago Labs observability suite:
+        Grafana Cloud (Mimir + Loki) fed by a Grafana Alloy container in Docker Compose on a Proxmox
         LXC container. It monitors a Firewalla home network appliance and
-        Proxmox infrastructure. Focus your review on:
+        Proxmox infrastructure; AWS telemetry is planned next. Focus your review on:
 
         1. **Docker Compose correctness** — service definitions, volume
            mounts, port mappings, environment variable references, restart

@@ -1,6 +1,13 @@
-# Homelab Observability
+# drosera
 
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/lentago/homelab-observability)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/lentago/drosera)
+
+**Drosera** (sundew — the botanical codename line alongside `lentago`,
+`solidago`, and `kalmia`) is the Lentago Labs observability suite. Today it
+watches the homelab; it will shortly extend to receive AWS telemetry from the
+Lentago cloud estate. Renamed from `homelab-observability` on 2026-07-04 —
+AWS-side resource names (the OIDC CI role, the Terraform state key) keep the
+old prefix, as do the live `/opt/homelab-observability` checkouts on hosts.
 
 **Authorship:** The Terraform, Alloy config, dashboards, scripts, and documentation in this repo are co-written with [Claude](https://claude.ai) (Anthropic). I direct the work and review the output; Claude writes the code. I'm an infrastructure operator, not a software engineer — please don't read this repo as a portfolio of coding ability.
 
@@ -279,7 +286,7 @@ source .envrc   # exports GRAFANA_CLOUD_LOGS_*
 
 It runs as a dedicated `alloy-transcript.service` under the `claude` user (the
 session files are `0600 claude:claude`). **Egress is deliberately scrubbed**
-(see [#71](https://github.com/lentago/homelab-observability/issues/71)): only
+(see [#71](https://github.com/lentago/drosera/issues/71)): only
 `assistant` text + tool *names* are shipped — `thinking` blocks, tool *inputs*,
 and `user`/tool-result lines (raw repo contents) never leave the LAN. A `runid`
 label is a possible future bullpen-side fast-follow.
@@ -291,7 +298,7 @@ names by joining against a **device-inventory log stream**,
 `log_source="device_inventory"`. Grafana Cloud runs queries server-side and
 cannot reach the LAN, and LAN topology must not be published to GitHub — so the
 name↔IP mapping travels the same trusted Alloy → Cloud Loki channel the Zeek
-logs already use (see [#113](https://github.com/lentago/homelab-observability/issues/113)).
+logs already use (see [#113](https://github.com/lentago/drosera/issues/113)).
 
 The publisher
 ([`scripts/device-inventory-publisher/publish-device-inventory.sh`](scripts/device-inventory-publisher/publish-device-inventory.sh))
