@@ -7,7 +7,7 @@
 
 Ship the cost of **local, interactive** Claude Code sessions to the homelab
 Grafana **"Claude Runner Fleet"** dashboard, so a workstation shows up next to
-the [bullpen](https://github.com/lentago/bullpen) agents under a **Local
+the [bullpen](https://github.com/lentago/claytonia) agents under a **Local
 sessions** row (`source="local"`, `worker=<hostname>`).
 
 It also emits a lightweight **`session_running`** heartbeat while a session is
