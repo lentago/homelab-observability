@@ -104,7 +104,7 @@ read Mimir + Loki. The public **Office Display** is a shared dashboard.
 
 ```mermaid
 flowchart LR
-  repo["Git: lentago/homelab-observability (main)"]
+  repo["Git: lentago/drosera (main)"]
   repo -- "terraform apply" --> dash["Grafana Cloud dashboards"]
   repo -- "alloy-gitops.timer (5 min, on the LXC)" --> central["Central Alloy config"]
   repo -- "deploy-alloy.sh (per host)" --> agents["Host Alloy agents"]

@@ -30,7 +30,7 @@ set -euo pipefail
 #
 # One-liner from a control host (private repo → the worker already has git auth):
 #   ssh claude-runner 'git clone --depth 1 \
-#     https://github.com/lentago/homelab-observability /tmp/ho && cd /tmp/ho && \
+#     https://github.com/lentago/drosera /tmp/ho && cd /tmp/ho && \
 #     sudo env GRAFANA_CLOUD_LOGS_URL=… GRAFANA_CLOUD_LOGS_USER=… \
 #     GRAFANA_CLOUD_LOGS_TOKEN=… \
 #     ./scripts/deploy-runner-transcript-alloy.sh; rm -rf /tmp/ho'
@@ -137,7 +137,7 @@ info "Writing /etc/systemd/system/alloy-transcript.service..."
 ${SUDO} tee /etc/systemd/system/alloy-transcript.service >/dev/null <<UNIT_EOF
 [Unit]
 Description=Grafana Alloy — bullpen fleet transcript shipper (worker-local, runs as ${RUN_USER})
-Documentation=https://github.com/lentago/homelab-observability/issues/71
+Documentation=https://github.com/lentago/drosera/issues/71
 After=network-online.target
 Wants=network-online.target
 

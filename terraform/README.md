@@ -23,7 +23,7 @@ encrypted, so the old "back up the local `tfstate` to the NAS" step is gone — 
 single authoritative store shared by local runs and CI.
 
 Local `terraform` uses your own AWS creds (the `default` profile / `cpitzi-iac` user); CI
-assumes the `homelab-observability-github-actions-terraform` OIDC role, scoped to **only**
+assumes the `homelab-observability-github-actions-terraform` OIDC role (the role and state key keep the pre-rename `homelab-observability` prefix — the repo became `drosera` on 2026-07-04), scoped to **only**
 this state key + the lock table — it cannot touch foundry's own state. (History: state was
 laptop-local until 2026-06-19, migrated into S3 to enable apply-on-merge — see CI below.)
 

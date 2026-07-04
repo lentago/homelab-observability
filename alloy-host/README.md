@@ -52,7 +52,7 @@ cp homelab-observability/alloy/ha_token /root/alloy-ha_token.bak
 #    volume homelab-observability_alloy-data — the WAL — is NOT removed).
 cd /opt/homelab-observability && docker compose down
 cd /opt && mv homelab-observability homelab-observability.precutover
-git clone https://github.com/lentago/homelab-observability.git
+git clone https://github.com/lentago/drosera.git homelab-observability
 
 # 3. Restore the secrets, then bring Alloy back up on the new dir mount.
 cp /root/alloy-env.bak       homelab-observability/.env
