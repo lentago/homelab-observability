@@ -1,5 +1,7 @@
 # Homelab Observability
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/lentago/homelab-observability)
+
 **Authorship:** The Terraform, Alloy config, dashboards, scripts, and documentation in this repo are co-written with [Claude](https://claude.ai) (Anthropic). I direct the work and review the output; Claude writes the code. I'm an infrastructure operator, not a software engineer — please don't read this repo as a portfolio of coding ability.
 
 **Agents / contributors:** setup, architecture, and credentials are documented here. Conventions (LogQL, dashboard UIDs, `node_exporter` model, kiosk) are in [CLAUDE.md](CLAUDE.md); PR norms in [CONTRIBUTING.md](CONTRIBUTING.md).
