@@ -1,13 +1,13 @@
 # Metrics & logs flow
 
-How telemetry gets from the homelab into Grafana Cloud, after the move to
+How telemetry gets from the Lentago lab into Grafana Cloud, after the move to
 **host-local Alloy push** for node metrics (see README §
 "Collection models"). This is the canonical flow diagram, replacing an earlier hand-drawn diagram
 from the pull-model era.
 
 ```mermaid
 flowchart LR
-  subgraph hosts["Homelab hosts (×6)"]
+  subgraph hosts["Lentago lab hosts (×6)"]
     direction TB
     names["neptune · pve · pve2<br/>pve3 · pve4 · pve5"]
     ne["node_exporter :9100"]
@@ -76,7 +76,7 @@ the rest as `job="homeassistant"`.
 
 **Host logs (push).** Each host's Alloy agent also ships its **systemd journal**
 to Grafana Cloud Loki via `loki.source.journal` → `loki.write` (`job="systemd-journal"`,
-`host="<instance>"`, `cluster="homelab"`; `level` and — for real `*.service`
+`host="<instance>"`, `cluster="lentago-lab"`; `level` and — for real `*.service`
 units — `unit` are promoted as labels; debug-priority lines are dropped to bound
 volume). Same push model as metrics; no central relay, no HA in the path. Added
 by `scripts/deploy-alloy.sh`.
@@ -97,8 +97,8 @@ read Mimir + Loki. The public **Office Display** is a shared dashboard.
 | Host node_exporter (push) | `node` | `instance` ∈ {neptune, pve, pve2, pve3, pve4, pve5} |
 | Blackbox probe | `integrations/blackbox/<target>` | — |
 | Home Assistant | `homeassistant` | `entity`, `friendly_name`, `domain` |
-| Host journald (Loki) | `systemd-journal` | `host`, `level`, `unit` (services only), `cluster="homelab"` |
-| Firewalla logs (Loki + Axiom) | `firewalla` | `log_source` ∈ {zeek_dns, zeek_conn, zeek_ssl, firewalla_acl}, `cluster="homelab"` |
+| Host journald (Loki) | `systemd-journal` | `host`, `level`, `unit` (services only), `cluster="lentago-lab"` |
+| Firewalla logs (Loki + Axiom) | `firewalla` | `log_source` ∈ {zeek_dns, zeek_conn, zeek_ssl, firewalla_acl}, `cluster="lentago-lab"` |
 
 ## Deploy flow (config → collectors)
 

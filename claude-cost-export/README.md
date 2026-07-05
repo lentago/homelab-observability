@@ -5,7 +5,7 @@
 > heartbeat feed the **Claude Runner Fleet** dashboard managed in this repo —
 > so it lives here with the rest of the pipeline.
 
-Ship the cost of **local, interactive** Claude Code sessions to the homelab
+Ship the cost of **local, interactive** Claude Code sessions to the Lentago lab
 Grafana **"Claude Runner Fleet"** dashboard, so a workstation shows up next to
 the [bullpen](https://github.com/lentago/claytonia) agents under a **Local
 sessions** row (`source="local"`, `worker=<hostname>`).
