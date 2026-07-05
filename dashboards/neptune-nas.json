@@ -280,21 +280,21 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "node_hwmon_temp_celsius{instance=\"neptune\", chip=\"platform_coretemp_0\", sensor=\"temp1\"}",
+          "expr": "node_hwmon_temp_celsius{instance=\"neptune\", chip=\"platform_coretemp_0\", sensor=\"temp1\"} * 9 / 5 + 32",
           "instant": true
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "celsius",
-          "min": 20,
-          "max": 100,
+          "unit": "fahrenheit",
+          "min": 68,
+          "max": 212,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               { "value": null, "color": "green" },
-              { "value": 70, "color": "yellow" },
-              { "value": 90, "color": "red" }
+              { "value": 158, "color": "yellow" },
+              { "value": 194, "color": "red" }
             ]
           },
           "color": { "mode": "thresholds" }
@@ -1043,24 +1043,24 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "node_hwmon_temp_celsius{instance=\"neptune\", chip=\"platform_coretemp_0\", sensor=\"temp1\"}",
+          "expr": "node_hwmon_temp_celsius{instance=\"neptune\", chip=\"platform_coretemp_0\", sensor=\"temp1\"} * 9 / 5 + 32",
           "legendFormat": "CPU package"
         },
         {
           "refId": "B",
-          "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.ugreen_nas_pool_1_disk_1_temperature\"}",
+          "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.ugreen_nas_pool_1_disk_1_temperature\"} * 9 / 5 + 32",
           "legendFormat": "Disk 1"
         },
         {
           "refId": "C",
-          "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.ugreen_nas_pool_1_disk_2_temperature\"}",
+          "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.ugreen_nas_pool_1_disk_2_temperature\"} * 9 / 5 + 32",
           "legendFormat": "Disk 2"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "celsius",
-          "min": 20,
+          "unit": "fahrenheit",
+          "min": 68,
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "smooth",
@@ -1081,8 +1081,8 @@
             "mode": "absolute",
             "steps": [
               { "value": null, "color": "green" },
-              { "value": 50, "color": "yellow" },
-              { "value": 60, "color": "red" }
+              { "value": 122, "color": "yellow" },
+              { "value": 140, "color": "red" }
             ]
           }
         },

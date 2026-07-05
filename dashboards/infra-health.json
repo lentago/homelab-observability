@@ -284,12 +284,12 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Temp °C"
+              "options": "Temp °F"
             },
             "properties": [
               {
                 "id": "unit",
-                "value": "celsius"
+                "value": "fahrenheit"
               },
               {
                 "id": "decimals",
@@ -305,11 +305,11 @@
                     },
                     {
                       "color": "yellow",
-                      "value": 70
+                      "value": 158
                     },
                     {
                       "color": "red",
-                      "value": 82
+                      "value": 180
                     }
                   ]
                 }
@@ -410,7 +410,7 @@
           "refId": "E"
         },
         {
-          "expr": "max by(instance)(node_hwmon_temp_celsius)",
+          "expr": "max by(instance)(node_hwmon_temp_celsius) * 9 / 5 + 32",
           "format": "table",
           "instant": true,
           "refId": "F"
@@ -450,7 +450,7 @@
               "Value #C": "RAM %",
               "Value #D": "Root %",
               "Value #E": "Load1",
-              "Value #F": "Temp °C",
+              "Value #F": "Temp °F",
               "Value #G": "Uptime",
               "instance": "Host"
             }
