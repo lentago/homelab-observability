@@ -3,7 +3,7 @@ description: Read repo docs before changing observability stack or asking setup 
 alwaysApply: true
 ---
 
-# Homelab observability — read the docs first
+# Lentago lab observability — read the docs first
 
 Before editing this repo or asking the user for architecture/credentials details:
 

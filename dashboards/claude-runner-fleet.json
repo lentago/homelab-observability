@@ -4,7 +4,7 @@
   "description": "Claude Runner Fleet observability: per-job cost, turns, and runtime from Loki job_complete events, plus a live open-PR review queue pulled from the GitHub API via the Infinity datasource.",
   "tags": [
     "claude-runner",
-    "homelab"
+    "lentago-lab"
   ],
   "timezone": "browser",
   "editable": true,

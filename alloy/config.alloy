@@ -1,4 +1,4 @@
-// Alloy collector for the homelab.
+// Alloy collector for the Lentago lab.
 //
 // Replaces the self-hosted Loki + Prometheus + blackbox-exporter trio. One
 // container running on the same Proxmox LXC that used to host the docker
@@ -41,7 +41,7 @@ loki.write "cloud" {
     }
   }
   external_labels = {
-    cluster = "homelab",
+    cluster = "lentago-lab",
   }
 }
 
@@ -157,6 +157,6 @@ prometheus.remote_write "cloud" {
     }
   }
   external_labels = {
-    cluster = "homelab",
+    cluster = "lentago-lab",
   }
 }

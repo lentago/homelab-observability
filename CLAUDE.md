@@ -53,7 +53,7 @@ claude-cost-export/         # local-session cost exporter + session_running hear
 ## Key conventions
 
 - **Dashboard UIDs**: `firewalla-<name>` (e.g. `firewalla-network-overview`).
-- **Loki labels**: `log_source` is the main stream selector — current values are `zeek_dns`, `zeek_conn`, `zeek_ssl`, `firewalla_acl`. After Alloy → Cloud, queries may also see `cluster="homelab"` from `external_labels` in Alloy — use both if a panel is empty.
+- **Loki labels**: `log_source` is the main stream selector — current values are `zeek_dns`, `zeek_conn`, `zeek_ssl`, `firewalla_acl`. After Alloy → Cloud, queries may also see `cluster="lentago-lab"` from `external_labels` in Alloy — use both if a panel is empty. Data ingested before the 2026-07-04 label migration still carries `cluster="homelab"`.
 - **Log parsing**: Zeek panels use `| json | line_format "{{.log}}" | json` to unwrap nested JSON.
 - **Template variables**: DNS & Traffic dashboards use `$device_ip` for per-device filtering.
 - **Dashboard JSON**: Grafana schema v39 — no `__inputs` or `__requires` (repo is source of truth, not “import package”).

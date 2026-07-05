@@ -165,6 +165,6 @@ loki.write "cloud" {
 		}
 	}
 	external_labels = {
-		cluster = "homelab",
+		cluster = "lentago-lab",
 	}
 }

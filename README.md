@@ -4,7 +4,7 @@
 
 **Drosera** (sundew — the botanical codename line alongside `lentago`,
 `solidago`, and `kalmia`) is the Lentago Labs observability suite. Today it
-watches the homelab; it will shortly extend to receive AWS telemetry from the
+watches the Lentago lab; it will shortly extend to receive AWS telemetry from the
 Lentago cloud estate. Renamed from `homelab-observability` on 2026-07-04 —
 AWS-side resource names (the OIDC CI role, the Terraform state key) keep the
 old prefix, as do the live `/opt/homelab-observability` checkouts on hosts.
@@ -51,7 +51,7 @@ conventions: [docs/metrics-flow.md](docs/metrics-flow.md).**
 
 Firewalla ships logs to Alloy via a Promtail-compatible push endpoint at
 **`192.168.139.20:3100`** (`/loki/api/v1/push`). Alloy forwards every stream to
-Grafana Cloud Loki under the `cluster="homelab"` external label, which it
+Grafana Cloud Loki under the `cluster="lentago-lab"` external label, which it
 injects automatically — queries may filter on it or omit it.
 
 The four active log streams, keyed by `log_source`:
@@ -200,9 +200,9 @@ open http://<lxc-ip>:12345         # Alloy debug UI
 
 After Alloy is up:
 
-- Confirm logs arrive in Cloud: **Explore → grafanacloud-lentago-logs** → `{cluster="homelab"}`.
+- Confirm logs arrive in Cloud: **Explore → grafanacloud-lentago-logs** → `{cluster="lentago-lab"}`.
 - Confirm metrics arrive: **Explore → grafanacloud-lentago-prom** →
-  `up{cluster="homelab"}` should return 1 for each scrape target.
+  `up{cluster="lentago-lab"}` should return 1 for each scrape target.
 - Visit a dashboard (e.g. **Firewalla / Network Overview**) and confirm panels
   render data.
 

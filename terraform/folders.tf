@@ -1,5 +1,5 @@
 resource "grafana_folder" "firewalla" {
-  title = "Homelab"
+  title = "Lentago"
   uid   = "afh7m8li40zk0d"
 }
 

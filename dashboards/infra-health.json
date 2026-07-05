@@ -34,9 +34,9 @@
       "includeVars": false,
       "keepTime": true,
       "tags": [
-        "homelab"
+        "lentago-lab"
       ],
-      "title": "Homelab dashboards",
+      "title": "Lentago lab dashboards",
       "type": "dashboards"
     }
   ],
@@ -1526,7 +1526,7 @@
   "refresh": "30s",
   "schemaVersion": 42,
   "tags": [
-    "homelab",
+    "lentago-lab",
     "infrastructure",
     "fleet"
   ],

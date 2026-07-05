@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Grafana Alloy host-agent deployment for homelab hosts (Debian 12).
+# Grafana Alloy host-agent deployment for Lentago lab hosts (Debian 12).
 # Idempotent — safe to re-run.
 #
 # Installs Grafana Alloy from the official apt repo and configures it as a
@@ -155,7 +155,7 @@ ${SUDO} tee /etc/alloy/config.alloy >/dev/null <<'ALLOY_EOF'
 // Metrics: scrapes node_exporter on localhost:9100 → remote_write to Mimir @15s
 // (job="node", instance from $ALLOY_INSTANCE).
 // Logs: ships this host's systemd journal → Grafana Cloud Loki
-// (job="systemd-journal", host from $ALLOY_INSTANCE, cluster="homelab").
+// (job="systemd-journal", host from $ALLOY_INSTANCE, cluster="lentago-lab").
 // Secrets + instance label come from /etc/default/alloy (0600), never from git.
 
 logging {
@@ -182,7 +182,7 @@ prometheus.remote_write "cloud" {
     }
   }
   external_labels = {
-    cluster = "homelab",
+    cluster = "lentago-lab",
   }
 }
 
@@ -224,7 +224,7 @@ loki.write "logs" {
     }
   }
   external_labels = {
-    cluster = "homelab",
+    cluster = "lentago-lab",
   }
 }
 ALLOY_EOF
