@@ -81,7 +81,7 @@ consumes zero free-tier active series. Queries bill as CloudWatch
   datasource (`terraform/datasources.tf`, "Grafana Assume Role" auth), and
   Solidago dashboards (`dashboards/solidago-platform-health.json`).
 - **[lentago/solidago](https://github.com/lentago/solidago) owns:** the IAM
-  role `foundry-dev-grafana-cloudwatch` (`modules/grafana-cloud`), its trust
+  role `solidago-dev-grafana-cloudwatch` (`modules/grafana-cloud`), its trust
   and permission policies, and the External ID plumbing.
 - **Coordination rule:** renaming the role, changing auth, or widening its
   policy is a **cross-repo change** — same discipline as the `log_source`

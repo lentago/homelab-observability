@@ -302,7 +302,7 @@
           "statistic": "Average",
           "dimensions": {
             "ClusterName": [
-              "foundry-dev-cluster"
+              "solidago-dev-cluster"
             ],
             "ServiceName": [
               "*"
@@ -330,7 +330,7 @@
           "statistic": "Average",
           "dimensions": {
             "ClusterName": [
-              "foundry-dev-cluster"
+              "solidago-dev-cluster"
             ],
             "ServiceName": [
               "*"

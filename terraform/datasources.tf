@@ -19,7 +19,7 @@ resource "grafana_data_source" "solidago_cloudwatch" {
 
   json_data_encoded = jsonencode({
     authType      = "grafana_assume_role"
-    assumeRoleArn = "arn:aws:iam::365184644049:role/foundry-dev-grafana-cloudwatch"
+    assumeRoleArn = "arn:aws:iam::365184644049:role/solidago-dev-grafana-cloudwatch"
     defaultRegion = "us-east-1"
   })
 }
