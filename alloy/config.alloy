@@ -129,7 +129,12 @@ prometheus.scrape "homeassistant" {
   forward_to      = [prometheus.relabel.ha_trim.receiver]
   scrape_interval = "60s"
   job_name        = "homeassistant"
-  bearer_token    = string.trim_space(local.file.ha_token.content)
+  // ha_token is is_secret=true, so its .content is an Alloy secret and cannot
+  // be passed through string functions (string.trim_space etc.) — doing so
+  // fails config evaluation with "secrets may not be converted into strings"
+  // and refuses to start. The token file is stored without a trailing newline
+  // (see alloy/ha_token.example), so no runtime trim is needed.
+  bearer_token    = local.file.ha_token.content
 }
 
 // Drop high-cardinality Home Assistant export noise that no dashboard uses:
