@@ -42,22 +42,6 @@
           "text": "All",
           "value": "$__all"
         }
-      },
-      {
-        "name": "worker",
-        "type": "query",
-        "datasource": {
-          "type": "loki",
-          "uid": "loki"
-        },
-        "query": "label_values({job=\"claude_transcript\"}, worker)",
-        "includeAll": true,
-        "allValue": ".*",
-        "multi": true,
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        }
       }
     ]
   },
@@ -866,8 +850,8 @@
     {
       "id": 12,
       "type": "logs",
-      "title": "Stream of consciousness \u2014 $worker",
-      "description": "Live, near-real-time reasoning for each bullpen worker \u2014 one full-width pane per worker (repeated by the $worker variable). Tool-call noise is suppressed: tool-only turns are dropped and the trailing \"[TOOL] ...\" tag is stripped from mixed turns, leaving just the narration. Scrubbed for offsite egress (no thinking, no tool inputs). Filter by project with $project. For true websocket tailing, open this query in Explore.",
+      "title": "Stream of consciousness \u2014 claude-runner",
+      "description": "Live, near-real-time reasoning for bullpen worker claude-runner. One always-present pane per fleet runner (not gated on recent activity, so an idle or not-yet-deployed worker shows an empty pane rather than vanishing). Tool-call noise is suppressed: tool-only turns are dropped and the trailing \"[TOOL] ...\" tag is stripped from mixed turns, leaving just the narration. Scrubbed for offsite egress (no thinking, no tool inputs). Filter by project with $project. For true websocket tailing, open this query in Explore.",
       "gridPos": {
         "x": 0,
         "y": 61,
@@ -894,12 +878,149 @@
             "uid": "loki"
           },
           "queryType": "range",
-          "expr": "{job=\"claude_transcript\", worker=\"$worker\", project=~\"$project\"} !~ `^\\[TOOL\\]` | line_format `{{ regexReplaceAll \"\\\\s*\\\\[TOOL\\\\].*\" __line__ \"\" }}`"
+          "expr": "{job=\"claude_transcript\", worker=\"claude-runner\", project=~\"$project\"} !~ `^\\[TOOL\\]` | line_format `{{ regexReplaceAll \"\\\\s*\\\\[TOOL\\\\].*\" __line__ \"\" }}`"
         }
-      ],
-      "repeat": "worker",
-      "repeatDirection": "h",
-      "maxPerRow": 1
+      ]
+    },
+    {
+      "id": 13,
+      "type": "logs",
+      "title": "Stream of consciousness \u2014 claude-runner-2",
+      "description": "Live, near-real-time reasoning for bullpen worker claude-runner-2. One always-present pane per fleet runner (not gated on recent activity, so an idle or not-yet-deployed worker shows an empty pane rather than vanishing). Tool-call noise is suppressed: tool-only turns are dropped and the trailing \"[TOOL] ...\" tag is stripped from mixed turns, leaving just the narration. Scrubbed for offsite egress (no thinking, no tool inputs). Filter by project with $project. For true websocket tailing, open this query in Explore.",
+      "gridPos": {
+        "x": 0,
+        "y": 71,
+        "w": 24,
+        "h": 10
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "queryType": "range",
+          "expr": "{job=\"claude_transcript\", worker=\"claude-runner-2\", project=~\"$project\"} !~ `^\\[TOOL\\]` | line_format `{{ regexReplaceAll \"\\\\s*\\\\[TOOL\\\\].*\" __line__ \"\" }}`"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "type": "logs",
+      "title": "Stream of consciousness \u2014 claude-runner-3",
+      "description": "Live, near-real-time reasoning for bullpen worker claude-runner-3. One always-present pane per fleet runner (not gated on recent activity, so an idle or not-yet-deployed worker shows an empty pane rather than vanishing). Tool-call noise is suppressed: tool-only turns are dropped and the trailing \"[TOOL] ...\" tag is stripped from mixed turns, leaving just the narration. Scrubbed for offsite egress (no thinking, no tool inputs). Filter by project with $project. For true websocket tailing, open this query in Explore.",
+      "gridPos": {
+        "x": 0,
+        "y": 81,
+        "w": 24,
+        "h": 10
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "queryType": "range",
+          "expr": "{job=\"claude_transcript\", worker=\"claude-runner-3\", project=~\"$project\"} !~ `^\\[TOOL\\]` | line_format `{{ regexReplaceAll \"\\\\s*\\\\[TOOL\\\\].*\" __line__ \"\" }}`"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "type": "logs",
+      "title": "Stream of consciousness \u2014 claude-runner-4",
+      "description": "Live, near-real-time reasoning for bullpen worker claude-runner-4. One always-present pane per fleet runner (not gated on recent activity, so an idle or not-yet-deployed worker shows an empty pane rather than vanishing). Tool-call noise is suppressed: tool-only turns are dropped and the trailing \"[TOOL] ...\" tag is stripped from mixed turns, leaving just the narration. Scrubbed for offsite egress (no thinking, no tool inputs). Filter by project with $project. For true websocket tailing, open this query in Explore.",
+      "gridPos": {
+        "x": 0,
+        "y": 91,
+        "w": 24,
+        "h": 10
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "queryType": "range",
+          "expr": "{job=\"claude_transcript\", worker=\"claude-runner-4\", project=~\"$project\"} !~ `^\\[TOOL\\]` | line_format `{{ regexReplaceAll \"\\\\s*\\\\[TOOL\\\\].*\" __line__ \"\" }}`"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "type": "logs",
+      "title": "Stream of consciousness \u2014 claude-runner-5",
+      "description": "Live, near-real-time reasoning for bullpen worker claude-runner-5. One always-present pane per fleet runner (not gated on recent activity, so an idle or not-yet-deployed worker shows an empty pane rather than vanishing). Tool-call noise is suppressed: tool-only turns are dropped and the trailing \"[TOOL] ...\" tag is stripped from mixed turns, leaving just the narration. Scrubbed for offsite egress (no thinking, no tool inputs). Filter by project with $project. For true websocket tailing, open this query in Explore.",
+      "gridPos": {
+        "x": 0,
+        "y": 101,
+        "w": 24,
+        "h": 10
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "queryType": "range",
+          "expr": "{job=\"claude_transcript\", worker=\"claude-runner-5\", project=~\"$project\"} !~ `^\\[TOOL\\]` | line_format `{{ regexReplaceAll \"\\\\s*\\\\[TOOL\\\\].*\" __line__ \"\" }}`"
+        }
+      ]
     },
     {
       "id": 100,
@@ -908,7 +1029,7 @@
       "collapsed": false,
       "gridPos": {
         "x": 0,
-        "y": 71,
+        "y": 111,
         "w": 24,
         "h": 1
       }
@@ -919,7 +1040,7 @@
       "title": "Local sessions (range)",
       "gridPos": {
         "x": 0,
-        "y": 72,
+        "y": 112,
         "w": 6,
         "h": 4
       },
@@ -962,7 +1083,7 @@
       "title": "Local spend (range)",
       "gridPos": {
         "x": 6,
-        "y": 72,
+        "y": 112,
         "w": 6,
         "h": 4
       },
@@ -1006,7 +1127,7 @@
       "title": "Local turns (range)",
       "gridPos": {
         "x": 12,
-        "y": 72,
+        "y": 112,
         "w": 6,
         "h": 4
       },
@@ -1049,7 +1170,7 @@
       "title": "Output tokens (range)",
       "gridPos": {
         "x": 18,
-        "y": 72,
+        "y": 112,
         "w": 6,
         "h": 4
       },
@@ -1092,7 +1213,7 @@
       "title": "Local spend over time by project",
       "gridPos": {
         "x": 0,
-        "y": 76,
+        "y": 116,
         "w": 24,
         "h": 8
       },
@@ -1131,7 +1252,7 @@
       "title": "Local spend over time by worker",
       "gridPos": {
         "x": 0,
-        "y": 84,
+        "y": 124,
         "w": 24,
         "h": 8
       },
@@ -1170,7 +1291,7 @@
       "title": "Recent local sessions",
       "gridPos": {
         "x": 0,
-        "y": 92,
+        "y": 132,
         "w": 24,
         "h": 8
       },
