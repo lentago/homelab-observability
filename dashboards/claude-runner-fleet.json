@@ -10,7 +10,7 @@
   "editable": true,
   "graphTooltip": 1,
   "schemaVersion": 39,
-  "version": 2,
+  "version": 3,
   "refresh": "30s",
   "time": {
     "from": "now-3h",
@@ -113,13 +113,13 @@
     {
       "id": 10,
       "type": "timeseries",
-      "title": "Offload \u2014 runners underway vs local sessions live",
-      "description": "The offload picture in one view: overlaid (not stacked) so you can watch local interactive sessions wind DOWN as the bullpen fleet winds UP. \"Runners underway\" = distinct busy bullpen workers (job_running heartbeat, 15s window). \"Local sessions live\" = distinct top-level local Claude Code sessions (session_running heartbeat, 2m window). Both are counts of concurrent work; where the orange falls and the blue rises is the handoff.",
+      "title": "Offload \u2014 concurrent runs (stacked, colored by model)",
+      "description": "Concurrent Claude work, stacked so the total height is everything running at once. Headless runner runs are broken out and colored by model (opus / sonnet / haiku / fable / default) from the job_running heartbeat \u2014 distinct busy workers per model, 15s window. Local interactive sessions stack as a single grey 'local' band (session_running heartbeat, 2m window); the live heartbeat carries no model, so local runs are not model-attributed here. Where the local band falls and the model-colored runner bands rise is the offload handoff.",
       "gridPos": {
         "x": 0,
         "y": 0,
         "w": 24,
-        "h": 12
+        "h": 10
       },
       "datasource": {
         "type": "loki",
@@ -134,17 +134,35 @@
             "drawStyle": "line",
             "lineInterpolation": "stepAfter",
             "lineWidth": 2,
-            "fillOpacity": 20,
+            "fillOpacity": 35,
             "spanNulls": false,
-            "showPoints": "auto",
-            "pointSize": 5
+            "showPoints": "never",
+            "stacking": {
+              "mode": "normal",
+              "group": "A"
+            }
           }
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "Runners underway"
+              "options": "opus"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "purple"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "sonnet"
             },
             "properties": [
               {
@@ -159,7 +177,22 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Local sessions live"
+              "options": "haiku"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "fable"
             },
             "properties": [
               {
@@ -167,6 +200,36 @@
                 "value": {
                   "mode": "fixed",
                   "fixedColor": "orange"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "default"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "yellow"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "local"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#808080"
                 }
               }
             ]
@@ -181,7 +244,7 @@
         },
         "tooltip": {
           "mode": "multi",
-          "sort": "none"
+          "sort": "desc"
         }
       },
       "targets": [
@@ -192,8 +255,8 @@
             "uid": "loki"
           },
           "queryType": "range",
-          "expr": "count(max by (worker) (count_over_time({job=\"claude_runner\", project=~\"$project\"} | json | event=\"job_running\" [15s]) > bool 0)) or vector(0)",
-          "legendFormat": "Runners underway"
+          "expr": "sum by (model) (max by (worker, model) (count_over_time({job=\"claude_runner\", project=~\"$project\"} | json | event=\"job_running\" [15s]) > bool 0))",
+          "legendFormat": "{{model}}"
         },
         {
           "refId": "B",
@@ -203,7 +266,7 @@
           },
           "queryType": "range",
           "expr": "sum(max by (worker, session_id) (count_over_time({job=\"claude_local\"} | json | event=\"session_running\" [2m]) > bool 0)) or vector(0)",
-          "legendFormat": "Local sessions live"
+          "legendFormat": "local"
         }
       ]
     },
@@ -214,9 +277,9 @@
       "description": "Runner + local combined spend over the dashboard range (job_complete cost_usd from the fleet plus session_complete cost_usd from local sessions).",
       "gridPos": {
         "x": 0,
-        "y": 12,
-        "w": 6,
-        "h": 6
+        "y": 10,
+        "w": 24,
+        "h": 4
       },
       "datasource": {
         "type": "loki",
@@ -253,105 +316,24 @@
       ]
     },
     {
-      "id": 21,
-      "type": "timeseries",
-      "title": "Combined spend over time (runners + local)",
-      "description": "Fleet and local spend stacked in one view \u2014 the stack height is the combined per-bucket spend. Per-project breakdowns for each side remain in their own panels below.",
+      "id": 200,
+      "type": "row",
+      "title": "Headcount & spend",
+      "collapsed": false,
       "gridPos": {
-        "x": 6,
-        "y": 12,
-        "w": 18,
-        "h": 6
-      },
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "currencyUSD",
-          "custom": {
-            "drawStyle": "bars",
-            "stacking": {
-              "mode": "normal"
-            },
-            "fillOpacity": 70
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Runners"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "blue"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Local"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "orange"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "queryType": "range",
-          "expr": "sum(sum_over_time({job=\"claude_runner\", project=~\"$project\"} | json | event=\"job_complete\" | unwrap cost_usd [$__auto])) or vector(0)",
-          "legendFormat": "Runners"
-        },
-        {
-          "refId": "B",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "queryType": "range",
-          "expr": "sum(sum_over_time({job=\"claude_local\"} | json | event=\"session_complete\" | unwrap cost_usd [$__auto])) or vector(0)",
-          "legendFormat": "Local"
-        }
-      ]
+        "x": 0,
+        "y": 14,
+        "w": 24,
+        "h": 1
+      }
     },
     {
       "id": 1,
       "type": "stat",
-      "title": "Jobs (range)",
+      "title": "Runner jobs (range)",
       "gridPos": {
         "x": 0,
-        "y": 18,
+        "y": 15,
         "w": 6,
         "h": 4
       },
@@ -391,10 +373,10 @@
     {
       "id": 2,
       "type": "stat",
-      "title": "Spend (range)",
+      "title": "Runner spend (range)",
       "gridPos": {
         "x": 6,
-        "y": 18,
+        "y": 15,
         "w": 6,
         "h": 4
       },
@@ -435,10 +417,10 @@
     {
       "id": 3,
       "type": "stat",
-      "title": "Success rate",
+      "title": "Runner success rate",
       "gridPos": {
         "x": 12,
-        "y": 18,
+        "y": 15,
         "w": 6,
         "h": 4
       },
@@ -494,10 +476,10 @@
     {
       "id": 4,
       "type": "stat",
-      "title": "PRs opened (range)",
+      "title": "Runner PRs opened (range)",
       "gridPos": {
         "x": 18,
-        "y": 18,
+        "y": 15,
         "w": 6,
         "h": 4
       },
@@ -535,14 +517,14 @@
       ]
     },
     {
-      "id": 5,
-      "type": "timeseries",
-      "title": "Jobs over time by status",
+      "id": 101,
+      "type": "stat",
+      "title": "Local sessions (range)",
       "gridPos": {
         "x": 0,
-        "y": 22,
-        "w": 24,
-        "h": 8
+        "y": 19,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
         "type": "loki",
@@ -551,14 +533,19 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "custom": {
-            "drawStyle": "bars",
-            "stacking": {
-              "mode": "normal"
-            },
-            "fillOpacity": 70
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
           }
         }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background"
       },
       "targets": [
         {
@@ -567,21 +554,20 @@
             "type": "loki",
             "uid": "loki"
           },
-          "queryType": "range",
-          "expr": "sum by (status) (count_over_time({job=\"claude_runner\", project=~\"$project\"} | json | event=\"job_complete\" [$__auto])) or label_replace(vector(0), \"status\", \"none\", \"\", \"\")",
-          "legendFormat": "{{status}}"
+          "queryType": "instant",
+          "expr": "sum(count_over_time({job=\"claude_local\"} | json | event=\"session_complete\" [$__range])) or vector(0)"
         }
       ]
     },
     {
-      "id": 6,
-      "type": "timeseries",
-      "title": "Spend over time by project",
+      "id": 102,
+      "type": "stat",
+      "title": "Local spend (range)",
       "gridPos": {
-        "x": 0,
-        "y": 30,
-        "w": 24,
-        "h": 8
+        "x": 6,
+        "y": 19,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
         "type": "loki",
@@ -590,14 +576,149 @@
       "fieldConfig": {
         "defaults": {
           "unit": "currencyUSD",
-          "custom": {
-            "drawStyle": "bars",
-            "stacking": {
-              "mode": "normal"
-            },
-            "fillOpacity": 70
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          },
+          "decimals": 2
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "queryType": "instant",
+          "expr": "sum(sum_over_time({job=\"claude_local\"} | json | event=\"session_complete\" | unwrap cost_usd [$__range])) or vector(0)"
+        }
+      ]
+    },
+    {
+      "id": 103,
+      "type": "stat",
+      "title": "Local turns (range)",
+      "gridPos": {
+        "x": 12,
+        "y": 19,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "purple"
           }
         }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "queryType": "instant",
+          "expr": "sum(sum_over_time({job=\"claude_local\"} | json | event=\"session_complete\" | unwrap num_turns [$__range])) or vector(0)"
+        }
+      ]
+    },
+    {
+      "id": 104,
+      "type": "stat",
+      "title": "Local output tokens (range)",
+      "gridPos": {
+        "x": 18,
+        "y": 19,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "queryType": "instant",
+          "expr": "sum(sum_over_time({job=\"claude_local\"} | json | event=\"session_complete\" | unwrap output_tokens [$__range])) or vector(0)"
+        }
+      ]
+    },
+    {
+      "id": 201,
+      "type": "row",
+      "title": "Recent activity",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 23,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 8,
+      "type": "logs",
+      "title": "Recent runner jobs",
+      "gridPos": {
+        "x": 0,
+        "y": 24,
+        "w": 12,
+        "h": 9
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending"
       },
       "targets": [
         {
@@ -607,10 +728,52 @@
             "uid": "loki"
           },
           "queryType": "range",
-          "expr": "sum by (project) (sum_over_time({job=\"claude_runner\", project=~\"$project\"} | json | event=\"job_complete\" | unwrap cost_usd [$__auto])) or vector(0)",
-          "legendFormat": "{{project}}"
+          "expr": "{job=\"claude_runner\", project=~\"$project\"} | json | event=\"job_complete\" | line_format \"{{.status}} {{.project}} {{.model}} ${{.cost_usd}} {{.num_turns}}turns {{.duration_sec}}s {{.runid}}\""
         }
       ]
+    },
+    {
+      "id": 107,
+      "type": "logs",
+      "title": "Recent local sessions",
+      "gridPos": {
+        "x": 12,
+        "y": 24,
+        "w": 12,
+        "h": 9
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "queryType": "range",
+          "expr": "{job=\"claude_local\"} | json | event=\"session_complete\" | line_format \"{{.worker}} {{.project}} {{.model}} ${{.cost_usd}} {{.num_turns}}turns {{.duration_sec}}s\""
+        }
+      ]
+    },
+    {
+      "id": 202,
+      "type": "row",
+      "title": "Duration \u00b7 open PRs",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 33,
+        "w": 24,
+        "h": 1
+      }
     },
     {
       "id": 7,
@@ -618,7 +781,7 @@
       "title": "Job duration (avg / max)",
       "gridPos": {
         "x": 0,
-        "y": 38,
+        "y": 34,
         "w": 24,
         "h": 8
       },
@@ -660,44 +823,13 @@
       ]
     },
     {
-      "id": 8,
-      "type": "logs",
-      "title": "Recent jobs",
-      "gridPos": {
-        "x": 0,
-        "y": 46,
-        "w": 24,
-        "h": 8
-      },
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "options": {
-        "showTime": true,
-        "wrapLogMessage": true,
-        "sortOrder": "Descending"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "queryType": "range",
-          "expr": "{job=\"claude_runner\", project=~\"$project\"} | json | event=\"job_complete\" | line_format \"{{.status}} {{.project}} {{.model}} ${{.cost_usd}} {{.num_turns}}turns {{.duration_sec}}s {{.runid}}\""
-        }
-      ]
-    },
-    {
       "id": 9,
       "type": "table",
       "title": "Open agent PRs (awaiting local review)",
       "description": "Live open-PR review queue from the GitHub Search API via the Infinity datasource: currently-open PRs authored by lentago-claude-runner[bot] across the Lentago Labs org, oldest first. Reflects real state \u2014 merged/closed PRs drop off. The Loki job_complete stream records pr_url only at open time and never observes the later merge, so it cannot track which PRs are still open.",
       "gridPos": {
         "x": 0,
-        "y": 54,
+        "y": 42,
         "w": 24,
         "h": 7
       },
@@ -848,13 +980,25 @@
       ]
     },
     {
+      "id": 203,
+      "type": "row",
+      "title": "Stream of consciousness \u2014 live runner reasoning",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 49,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
       "id": 12,
       "type": "logs",
       "title": "Stream of consciousness \u2014 claude-runner",
       "description": "Live, near-real-time reasoning for bullpen worker claude-runner. One always-present pane per fleet runner (not gated on recent activity, so an idle or not-yet-deployed worker shows an empty pane rather than vanishing). Tool-call noise is suppressed: tool-only turns are dropped and the trailing \"[TOOL] ...\" tag is stripped from mixed turns, leaving just the narration. Scrubbed for offsite egress (no thinking, no tool inputs). Filter by project with $project. For true websocket tailing, open this query in Explore.",
       "gridPos": {
         "x": 0,
-        "y": 61,
+        "y": 50,
         "w": 24,
         "h": 10
       },
@@ -889,7 +1033,7 @@
       "description": "Live, near-real-time reasoning for bullpen worker claude-runner-2. One always-present pane per fleet runner (not gated on recent activity, so an idle or not-yet-deployed worker shows an empty pane rather than vanishing). Tool-call noise is suppressed: tool-only turns are dropped and the trailing \"[TOOL] ...\" tag is stripped from mixed turns, leaving just the narration. Scrubbed for offsite egress (no thinking, no tool inputs). Filter by project with $project. For true websocket tailing, open this query in Explore.",
       "gridPos": {
         "x": 0,
-        "y": 71,
+        "y": 60,
         "w": 24,
         "h": 10
       },
@@ -924,7 +1068,7 @@
       "description": "Live, near-real-time reasoning for bullpen worker claude-runner-3. One always-present pane per fleet runner (not gated on recent activity, so an idle or not-yet-deployed worker shows an empty pane rather than vanishing). Tool-call noise is suppressed: tool-only turns are dropped and the trailing \"[TOOL] ...\" tag is stripped from mixed turns, leaving just the narration. Scrubbed for offsite egress (no thinking, no tool inputs). Filter by project with $project. For true websocket tailing, open this query in Explore.",
       "gridPos": {
         "x": 0,
-        "y": 81,
+        "y": 70,
         "w": 24,
         "h": 10
       },
@@ -959,7 +1103,7 @@
       "description": "Live, near-real-time reasoning for bullpen worker claude-runner-4. One always-present pane per fleet runner (not gated on recent activity, so an idle or not-yet-deployed worker shows an empty pane rather than vanishing). Tool-call noise is suppressed: tool-only turns are dropped and the trailing \"[TOOL] ...\" tag is stripped from mixed turns, leaving just the narration. Scrubbed for offsite egress (no thinking, no tool inputs). Filter by project with $project. For true websocket tailing, open this query in Explore.",
       "gridPos": {
         "x": 0,
-        "y": 91,
+        "y": 80,
         "w": 24,
         "h": 10
       },
@@ -994,7 +1138,7 @@
       "description": "Live, near-real-time reasoning for bullpen worker claude-runner-5. One always-present pane per fleet runner (not gated on recent activity, so an idle or not-yet-deployed worker shows an empty pane rather than vanishing). Tool-call noise is suppressed: tool-only turns are dropped and the trailing \"[TOOL] ...\" tag is stripped from mixed turns, leaving just the narration. Scrubbed for offsite egress (no thinking, no tool inputs). Filter by project with $project. For true websocket tailing, open this query in Explore.",
       "gridPos": {
         "x": 0,
-        "y": 101,
+        "y": 90,
         "w": 24,
         "h": 10
       },
@@ -1019,300 +1163,6 @@
           },
           "queryType": "range",
           "expr": "{job=\"claude_transcript\", worker=\"claude-runner-5\", project=~\"$project\"} !~ `^\\[TOOL\\]` | line_format `{{ regexReplaceAll \"\\\\s*\\\\[TOOL\\\\].*\" __line__ \"\" }}`"
-        }
-      ]
-    },
-    {
-      "id": 100,
-      "type": "row",
-      "title": "Local sessions \u2014 interactive (source=\"local\")",
-      "collapsed": false,
-      "gridPos": {
-        "x": 0,
-        "y": 111,
-        "w": 24,
-        "h": 1
-      }
-    },
-    {
-      "id": 101,
-      "type": "stat",
-      "title": "Local sessions (range)",
-      "gridPos": {
-        "x": 0,
-        "y": 112,
-        "w": 6,
-        "h": 4
-      },
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "blue"
-          }
-        }
-      },
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "colorMode": "background"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "queryType": "instant",
-          "expr": "sum(count_over_time({job=\"claude_local\"} | json | event=\"session_complete\" [$__range])) or vector(0)"
-        }
-      ]
-    },
-    {
-      "id": 102,
-      "type": "stat",
-      "title": "Local spend (range)",
-      "gridPos": {
-        "x": 6,
-        "y": 112,
-        "w": 6,
-        "h": 4
-      },
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "currencyUSD",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "green"
-          },
-          "decimals": 2
-        }
-      },
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "colorMode": "background"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "queryType": "instant",
-          "expr": "sum(sum_over_time({job=\"claude_local\"} | json | event=\"session_complete\" | unwrap cost_usd [$__range])) or vector(0)"
-        }
-      ]
-    },
-    {
-      "id": 103,
-      "type": "stat",
-      "title": "Local turns (range)",
-      "gridPos": {
-        "x": 12,
-        "y": 112,
-        "w": 6,
-        "h": 4
-      },
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "purple"
-          }
-        }
-      },
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "colorMode": "background"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "queryType": "instant",
-          "expr": "sum(sum_over_time({job=\"claude_local\"} | json | event=\"session_complete\" | unwrap num_turns [$__range])) or vector(0)"
-        }
-      ]
-    },
-    {
-      "id": 104,
-      "type": "stat",
-      "title": "Output tokens (range)",
-      "gridPos": {
-        "x": 18,
-        "y": 112,
-        "w": 6,
-        "h": 4
-      },
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "orange"
-          }
-        }
-      },
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "colorMode": "background"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "queryType": "instant",
-          "expr": "sum(sum_over_time({job=\"claude_local\"} | json | event=\"session_complete\" | unwrap output_tokens [$__range])) or vector(0)"
-        }
-      ]
-    },
-    {
-      "id": 105,
-      "type": "timeseries",
-      "title": "Local spend over time by project",
-      "gridPos": {
-        "x": 0,
-        "y": 116,
-        "w": 24,
-        "h": 8
-      },
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "currencyUSD",
-          "custom": {
-            "drawStyle": "bars",
-            "stacking": {
-              "mode": "normal"
-            },
-            "fillOpacity": 70
-          }
-        }
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "queryType": "range",
-          "expr": "sum by (project) (sum_over_time({job=\"claude_local\"} | json | event=\"session_complete\" | unwrap cost_usd [$__auto])) or vector(0)",
-          "legendFormat": "{{project}}"
-        }
-      ]
-    },
-    {
-      "id": 106,
-      "type": "timeseries",
-      "title": "Local spend over time by worker",
-      "gridPos": {
-        "x": 0,
-        "y": 124,
-        "w": 24,
-        "h": 8
-      },
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "currencyUSD",
-          "custom": {
-            "drawStyle": "bars",
-            "stacking": {
-              "mode": "normal"
-            },
-            "fillOpacity": 70
-          }
-        }
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "queryType": "range",
-          "expr": "sum by (worker) (sum_over_time({job=\"claude_local\"} | json | event=\"session_complete\" | unwrap cost_usd [$__auto])) or vector(0)",
-          "legendFormat": "{{worker}}"
-        }
-      ]
-    },
-    {
-      "id": 107,
-      "type": "logs",
-      "title": "Recent local sessions",
-      "gridPos": {
-        "x": 0,
-        "y": 132,
-        "w": 24,
-        "h": 8
-      },
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "options": {
-        "showTime": true,
-        "wrapLogMessage": true,
-        "sortOrder": "Descending"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "queryType": "range",
-          "expr": "{job=\"claude_local\"} | json | event=\"session_complete\" | line_format \"{{.worker}} {{.project}} {{.model}} ${{.cost_usd}} {{.num_turns}}turns {{.duration_sec}}s\""
         }
       ]
     }
