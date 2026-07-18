@@ -96,3 +96,42 @@ locals {
     k => file("${local.dashboards_dir}/${d.file}")
   }
 }
+
+# Site dashboards — one per public site, uid/file named after the site repo
+# (site-<domain-with-dashes>). Unlike the solidago set, these ARE routed
+# through the datasource-UID rewrite: site dashboards mix Mimir probe panels
+# (the "prometheus" placeholder) with CloudWatch panels ("solidago-cloudwatch",
+# a real uid the rewrite regexes never match, so it passes through untouched).
+locals {
+  sites_dashboards = {
+    pondviewlane_com = {
+      uid  = "site-pondviewlane-com"
+      file = "site-pondviewlane-com.json"
+    }
+    icecreamtofightwith_com = {
+      uid  = "site-icecreamtofightwith-com"
+      file = "site-icecreamtofightwith-com.json"
+    }
+    lentago_dev = {
+      uid  = "site-lentago-dev"
+      file = "site-lentago-dev.json"
+    }
+  }
+
+  sites_dashboard_json = {
+    for k, d in local.sites_dashboards :
+    k => replace(
+      replace(
+        replace(
+          file("${local.dashboards_dir}/${d.file}"),
+          "/\"uid\":\\s*\"loki\"/",
+          "\"uid\": \"${local.datasource_uid_rewrites["loki"]}\""
+        ),
+        "/\"uid\":\\s*\"prometheus\"/",
+        "\"uid\": \"${local.datasource_uid_rewrites["prometheus"]}\""
+      ),
+      "/\"uid\":\\s*\"infinity\"/",
+      "\"uid\": \"${local.datasource_uid_rewrites["infinity"]}\""
+    )
+  }
+}

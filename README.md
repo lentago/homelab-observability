@@ -80,6 +80,15 @@ consumes zero free-tier active series. Queries bill as CloudWatch
 - **This repo owns:** the `Solidago` folder, the `solidago-cloudwatch`
   datasource (`terraform/datasources.tf`, "Grafana Assume Role" auth), and
   Solidago dashboards (`dashboards/solidago-platform-health.json`).
+- **Per-site dashboards** live in the sibling `Sites` folder
+  (`dashboards/site-*.json`, uid = site repo name): outside-in blackbox
+  probes (Mimir) on top, per-TargetGroup / per-ECS-service CloudWatch below.
+  ALB panels use SEARCH expressions on stable name fragments — TargetGroup
+  and LoadBalancer dimension hashes rotate on the nightly DR rebuild, so
+  pinned dimension values break every night. Site dashboards refresh at 5m
+  (not the 1m floor) since they're viewed on demand, not kiosked.
+  Onboarding a new site: one probe target in `alloy/config.alloy`, one JSON,
+  one `sites_dashboards` entry — existing sites untouched.
 - **[lentago/solidago](https://github.com/lentago/solidago) owns:** the IAM
   role `solidago-dev-grafana-cloudwatch` (`modules/grafana-cloud`), its trust
   and permission policies, and the External ID plumbing.
@@ -120,6 +129,7 @@ dashboards/                    # source of truth for Grafana dashboard JSON
   office-display.json
   neptune-nas.json             # Neptune NAS real-time activity (CPU/disk/net/RAID/temps)
   solidago-platform-health.json # Solidago (AWS) via the CloudWatch datasource
+  site-*.json                  # per-site health (Mimir probes + per-TG/service CloudWatch)
 terraform/                     # manages Cloud-side resources
   *.tf                         # incl. datasources.tf — the solidago-cloudwatch datasource
 scripts/
