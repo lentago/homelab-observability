@@ -7,3 +7,8 @@ resource "grafana_folder" "solidago" {
   title = "Solidago"
   uid   = "solidago"
 }
+
+resource "grafana_folder" "sites" {
+  title = "Sites"
+  uid   = "sites"
+}

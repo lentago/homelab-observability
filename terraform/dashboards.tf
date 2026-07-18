@@ -13,3 +13,11 @@ resource "grafana_dashboard" "solidago" {
   overwrite   = true
   config_json = local.solidago_dashboard_json[each.key]
 }
+
+resource "grafana_dashboard" "sites" {
+  for_each = local.sites_dashboards
+
+  folder      = grafana_folder.sites.uid
+  overwrite   = true
+  config_json = local.sites_dashboard_json[each.key]
+}
