@@ -168,9 +168,22 @@ prometheus.scrape "node" {
   targets = [
     { __address__ = "127.0.0.1:9100", instance = sys.env("ALLOY_INSTANCE") },
   ]
-  forward_to      = [prometheus.remote_write.cloud.receiver]
+  forward_to      = [prometheus.relabel.node_trim.receiver]
   scrape_interval = "15s"
   job_name        = "node"
+}
+
+// Drop node_exporter series no dashboard reads: per-NFS-op client counters,
+// per-collector meta-metrics (only useful debugging node_exporter itself),
+// and per-disk discard/device-mapper detail. ~1k series fleet-wide freed
+// under the 15k Grafana Cloud active-series cap — see issue #138.
+prometheus.relabel "node_trim" {
+  forward_to = [prometheus.remote_write.cloud.receiver]
+  rule {
+    source_labels = ["__name__"]
+    regex         = "node_nfs_requests_total|node_scrape_collector_success|node_scrape_collector_duration_seconds|node_disk_discard.*|node_disk_device_mapper_info"
+    action        = "drop"
+  }
 }
 
 prometheus.remote_write "cloud" {
