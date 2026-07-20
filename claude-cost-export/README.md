@@ -7,7 +7,7 @@
 
 Ship the cost of **local, interactive** Claude Code sessions to the Lentago lab
 Grafana **"Claytonia — Runner Fleet"** dashboard, so a workstation shows up next to
-the [bullpen](https://github.com/lentago/claytonia) agents under a **Local
+the [Claytonia](https://github.com/lentago/claytonia) agents under a **Local
 sessions** row (`source="local"`, `worker=<hostname>`).
 
 It also emits a lightweight **`session_running`** heartbeat while a session is
@@ -16,7 +16,7 @@ dashboard's **"Local sessions underway"** pane shows in real time which
 workstations are busy — the live counterpart to the per-session cost shipped at
 the end.
 
-The bullpen gets `total_cost_usd` for free from headless `claude -p --output-format
+Claytonia agents get `total_cost_usd` for free from headless `claude -p --output-format
 json`. Interactive sessions have no such result blob, so this tool reconstructs
 per-session cost from the transcript and ships one event per finished session.
 
