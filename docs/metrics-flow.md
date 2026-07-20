@@ -16,13 +16,14 @@ flowchart LR
   end
 
   haos["Home Assistant (HAOS)<br/>/api/prometheus"]
-  fw["Firewalla<br/>Promtail: Zeek + ACL logs"]
+  fw["Firewalla<br/>Fluent Bit: Zeek + ACL logs"]
+  fwdev["Firewalla<br/>device-inventory publisher"]
 
   subgraph central["Central Alloy — LXC 105 (grafana-stack)"]
     direction TB
     bb["blackbox probes<br/>ICMP / HTTP"]
     hascrape["HA scrape → ha_trim<br/>(drops export noise)"]
-    lokirecv["loki.source.api :3100"]
+    lokirecv["loki.source.api :3100<br/>(device_inventory only)"]
   end
 
   subgraph cloud["Grafana Cloud (lentago)"]
@@ -35,15 +36,14 @@ flowchart LR
   end
 
   display["Office Display<br/>public dashboard share"]
-  axiom[("Axiom<br/>Zeek/ACL, 30d")]
 
   agent -- "remote_write 15s · job=node" --> mimir
   agent -- "journald · job=systemd-journal" --> lokidb
   haos --> hascrape
   bb -- "remote_write · job=integrations/blackbox/*" --> mimir
   hascrape -- "remote_write · job=homeassistant" --> mimir
-  fw -- "Loki push" --> lokirecv
-  fw -. "Zeek/ACL (primary)" .-> axiom
+  fwdev -- "Loki push" --> lokirecv
+  fw -- "direct Loki push, no relay" --> lokidb
   lokirecv -- "loki.write" --> lokidb
   grafana --> display
 
@@ -51,8 +51,8 @@ flowchart LR
   classDef logs fill:#7a4d00,stroke:#ffb020,color:#fff;
   classDef sink fill:#1d3b6b,stroke:#5b8def,color:#fff;
   class ne,agent,bb,hascrape,haos metric;
-  class fw,lokirecv logs;
-  class mimir,lokidb,grafana,display,axiom sink;
+  class fw,fwdev,lokirecv logs;
+  class mimir,lokidb,grafana,display sink;
 ```
 
 ## The paths
@@ -82,10 +82,17 @@ volume). Same push model as metrics; no central relay, no HA in the path. Added
 by `scripts/deploy-alloy.sh`.
 
 **Firewalla logs (security).** The Firewalla's Fluent Bit ships Zeek (DNS/conn/SSL)
-and ACL logs to **Axiom** (primary, 30-day retention — high-volume security
-logs). It also pushes to the central Alloy's `loki.source.api` on `:3100`
-(→ `loki.write` → Cloud Loki) for live dashboards. *(Split by purpose: Loki =
-host/infra ops logs, Axiom = high-volume security logs.)*
+and ACL logs **directly** to Grafana Cloud Loki over HTTPS — no LAN relay, no
+central Alloy in the path. (Betula formerly also shipped a copy to Axiom;
+betula#82, merged 2026-07-09, dropped that output, so Cloud Loki is now the
+sole destination.) Owned by [lentago/betula](https://github.com/lentago/betula)
+— triage shipping gaps there, not on the central Alloy.
+
+**Device inventory (LAN name↔IP resolution).** A separate publisher on the
+Firewalla box pushes device-name/IP pairs to the central Alloy's
+`loki.source.api` on `:3100`, which forwards them to Cloud Loki via
+`loki.write` — the **one remaining user** of that receiver. See README §
+"Device inventory feed".
 
 **Consumption.** Dashboards (Terraform-managed, `dashboards/*.json`) and Explore
 read Mimir + Loki. The public **Office Display** is a shared dashboard.
@@ -98,7 +105,8 @@ read Mimir + Loki. The public **Office Display** is a shared dashboard.
 | Blackbox probe | `integrations/blackbox/<target>` | — |
 | Home Assistant | `homeassistant` | `entity`, `friendly_name`, `domain` |
 | Host journald (Loki) | `systemd-journal` | `host`, `level`, `unit` (services only), `cluster="lentago-lab"` |
-| Firewalla logs (Loki + Axiom) | `firewalla` | `log_source` ∈ {zeek_dns, zeek_conn, zeek_ssl, firewalla_acl}, `cluster="lentago-lab"` |
+| Firewalla logs (Loki, direct push) | `firewalla` | `log_source` ∈ {zeek_dns, zeek_conn, zeek_ssl, firewalla_acl}, `cluster="lentago-lab"` |
+| Device inventory (Loki, via central Alloy relay) | — (unset) | `log_source="device_inventory"`, `dev="<name>\|<ip>"`, `cluster="lentago-lab"` (from Alloy `external_labels`) |
 
 ## Deploy flow (config → collectors)
 

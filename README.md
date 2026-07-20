@@ -29,9 +29,12 @@ Everything is declarative:
 ## Architecture
 
 Node metrics **push** from each host (host-local Alloy → Mimir, 15s); the
-central Alloy on the LXC handles only blackbox probes, the Home Assistant
-scrape, and the Loki receiver. **Full rendered diagram, paths, and label
-conventions: [docs/metrics-flow.md](docs/metrics-flow.md).**
+central Alloy on the LXC handles blackbox probes, the Home Assistant scrape,
+and a Loki receiver used only by the device-inventory feed (see below).
+Zeek/ACL logs bypass the central Alloy entirely — the Firewalla's Fluent Bit
+shipper (owned by [lentago/betula](https://github.com/lentago/betula)) pushes
+those directly to Grafana Cloud Loki. **Full rendered diagram, paths, and
+label conventions: [docs/metrics-flow.md](docs/metrics-flow.md).**
 
 ```
   HOSTS ×6 (neptune, pve, pve2, pve3, pve4, pve5)
@@ -40,7 +43,9 @@ conventions: [docs/metrics-flow.md](docs/metrics-flow.md).**
   CENTRAL ALLOY (LXC 105)                                       │    (lentago)
     blackbox ICMP/HTTP ───────────────── remote_write ─────────┤    ├─ Mimir (metrics)
     Home Assistant /api/prometheus → HA scrape → remote_write ──┤    ├─ Loki  (logs)
-    Firewalla Promtail → Loki receiver :3100 ── loki push ──────┘    └─ Grafana
+    device_inventory publisher → Loki receiver :3100 ──────────┘    └─ Grafana
+                                                                          │
+  Firewalla Fluent Bit (Zeek/ACL) ── direct Loki push, no relay ─────────┤
                                                                           │
   AWS / SOLIDAGO CloudWatch ◀── query-on-demand (assume-role) ── Grafana ─┤
                                                                           │
@@ -49,10 +54,11 @@ conventions: [docs/metrics-flow.md](docs/metrics-flow.md).**
 
 ## Loki output contract
 
-Firewalla ships logs to Alloy via a Promtail-compatible push endpoint at
-**`192.168.139.20:3100`** (`/loki/api/v1/push`). Alloy forwards every stream to
-Grafana Cloud Loki under the `cluster="lentago-lab"` external label, which it
-injects automatically — queries may filter on it or omit it.
+Firewalla's Fluent Bit shipper pushes Zeek/ACL logs **directly** to Grafana
+Cloud Loki over HTTPS — no LAN relay, and the central Alloy on LXC 105 is not
+in this path. It attaches the `cluster="lentago-lab"` label itself (a static
+`Labels` directive in its Fluent Bit config), unlike the metrics side, where
+the central Alloy's `external_labels` injects that label.
 
 The four active log streams, keyed by `log_source`:
 
@@ -63,12 +69,20 @@ The four active log streams, keyed by `log_source`:
 | `zeek_ssl` | TLS handshake records — SNI, certificate subject, cipher, validation status. |
 | `firewalla_acl` | Firewalla ACL alarm events — blocked/allowed flows, rule name, severity. |
 
-**Change coordination:** the Firewalla side of this pipeline lives in
-[lentago/betula](https://github.com/lentago/betula) (renamed from
-`firewalla-axiom-pipeline` 2026-07-04).
-Any change to the `log_source` values or the push endpoint above must be
-coordinated with that repo (see its issue #42, which shipped the current label
-scheme) so both sides stay in sync.
+**Change coordination:** the Firewalla side of this pipeline — the Fluent Bit
+config, its direct-to-Loki output block, and the `log_source` label scheme —
+lives in [lentago/betula](https://github.com/lentago/betula) (renamed from
+`firewalla-axiom-pipeline` 2026-07-04; betula#82, merged 2026-07-09, also
+dropped its former parallel Axiom output, so Grafana Cloud Loki is now its
+sole destination). Any change to the `log_source` values or the Loki output
+must be coordinated with that repo (see its issue #42, which shipped the
+current label scheme) so both sides stay in sync.
+
+**Triage pointer:** if Zeek/ACL dashboards go dark, look on the Firewalla /
+betula side first (the Fluent Bit container, its Loki output config, box
+network egress) — the central Alloy on LXC 105 no longer relays this traffic,
+so it's not a suspect for these four streams. It remains the right place to
+look for `device_inventory` gaps (below) and for the metrics pipeline.
 
 ## Solidago (AWS) contract
 
@@ -341,16 +355,19 @@ Dashboards that show raw LAN source IPs (`id_orig_h`) resolve them to device
 names by joining against a **device-inventory log stream**,
 `log_source="device_inventory"`. Grafana Cloud runs queries server-side and
 cannot reach the LAN, and LAN topology must not be published to GitHub — so the
-name↔IP mapping travels the same trusted Alloy → Cloud Loki channel the Zeek
-logs already use (see [#113](https://github.com/lentago/drosera/issues/113)).
+name↔IP mapping travels the trusted central-Alloy → Cloud Loki channel (see
+[#113](https://github.com/lentago/drosera/issues/113)). **This publisher is the
+one remaining user of the central Alloy's `:3100` Loki receiver**
+(`loki.source.api "firewalla"` in [`alloy/config.alloy`](alloy/config.alloy));
+Zeek/ACL logs no longer travel this path (see "Loki output contract" above) —
+don't mistake the receiver block for dead config and remove it.
 
 The publisher
 ([`scripts/device-inventory-publisher/publish-device-inventory.sh`](scripts/device-inventory-publisher/publish-device-inventory.sh))
 runs **on the Firewalla box** (pi user, **hourly** via cron). It reads the box's
 own device inventory from local redis (`host:mac:*` hashes — no new
 credentials) and pushes one record per (device, IP) pair to the central Alloy
-Loki receiver (`http://<ALLOY_HOST>:3100/loki/api/v1/push`) — the same endpoint
-the box already ships Zeek logs to.
+Loki receiver (`http://<ALLOY_HOST>:3100/loki/api/v1/push`).
 
 **Stream schema** — one Loki stream per (device, IP):
 
