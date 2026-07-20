@@ -20,7 +20,7 @@ scope expansion. **Names that deliberately keep the old
 on LXC 105 and the bullpen runners, and the derived `homelab-observability_alloy-data`
 docker volume (the Alloy WAL).
 
-Firewalla home-network observability: **Grafana Cloud** (dashboards + Mimir + Loki) plus **Grafana Alloy** on a Proxmox LXC for ingestion. Firewalla ships Zeek (DNS, conn) and ACL alarm logs to Alloy’s Loki-compatible receiver; Alloy forwards to Grafana Cloud Loki. Metrics: native Alloy blackbox probes (ICMP / HTTP), `node_exporter` on Proxmox hosts, and Home Assistant’s `/api/prometheus` — all remote-written to Grafana Cloud Mimir.
+Firewalla home-network observability: **Grafana Cloud** (dashboards + Mimir + Loki) plus **Grafana Alloy** on a Proxmox LXC for ingestion. Firewalla's Fluent Bit shipper (owned by [lentago/betula](https://github.com/lentago/betula)) ships Zeek (DNS, conn, SSL) and ACL alarm logs **directly** to Grafana Cloud Loki — no LAN relay, no Alloy in the path. The central Alloy's Loki receiver is used only by the `device_inventory` feed (LAN name↔IP resolution; see README § "Device inventory feed"). Metrics: native Alloy blackbox probes (ICMP / HTTP), `node_exporter` on Proxmox hosts, and Home Assistant’s `/api/prometheus` — all remote-written to Grafana Cloud Mimir.
 
 Dashboard JSON lives in [`dashboards/`](dashboards/) and is applied by [`terraform/`](terraform/).
 
@@ -29,7 +29,7 @@ Dashboard JSON lives in [`dashboards/`](dashboards/) and is applied by [`terrafo
 | Layer | What |
 |-------|------|
 | **Grafana Cloud** | UI, `grafanacloud-logs` / `grafanacloud-prom` datasources, dashboards (Terraform-managed) |
-| **Alloy** (single `docker compose` service) | `loki.source.api` on `:3100` (Promtail target), `prometheus.exporter.blackbox`, scrapes for node + HA, `remote_write` + `loki.write` to Cloud |
+| **Alloy** (single `docker compose` service) | `loki.source.api` on `:3100` (device-inventory publisher only — Zeek/ACL logs push directly to Cloud, bypassing this), `prometheus.exporter.blackbox`, scrapes for node + HA, `remote_write` + `loki.write` to Cloud |
 | **Bare metal** | `node_exporter` on Proxmox hosts (not in Docker) — see `scripts/deploy-node-exporter.sh` |
 
 Legacy self-hosted Loki + Prometheus + Grafana in one compose file is **removed**; do not reintroduce without an issue.
@@ -54,7 +54,7 @@ claude-cost-export/         # local-session cost exporter + session_running hear
 
 - **Folders & titles follow the product lines** (2026-07-18 reorg): `Claytonia` (Claytonia — Runner Fleet), `Solidago` (Solidago — Platform Health), `Sites` (per-site dashboards), and `Lentago Lab` for the homelab-source dashboards (the lab is drosera's first client, not a product). Product-scoped dashboard titles use `<Product> — <What>`.
 - **Dashboard UIDs are frozen legacy names** — `firewalla-<name>` for the lab set and `claude-runner-fleet` for the Claytonia fleet dashboard. UIDs are load-bearing (cross-dashboard `/d/` links, the office-display public share, terraform import blocks); changing one is a destroy/create. New per-site dashboards use `site-<domain-with-dashes>` matching the site repo names (e.g. `site-pondviewlane-com`); new product dashboards use `<product>-<name>` (e.g. `solidago-platform-health`).
-- **Loki labels**: `log_source` is the main stream selector — current values are `zeek_dns`, `zeek_conn`, `zeek_ssl`, `firewalla_acl`. After Alloy → Cloud, queries may also see `cluster="lentago-lab"` from `external_labels` in Alloy — use both if a panel is empty. Data ingested before the 2026-07-04 label migration still carries `cluster="homelab"`.
+- **Loki labels**: `log_source` is the main stream selector — current values are `zeek_dns`, `zeek_conn`, `zeek_ssl`, `firewalla_acl`, plus `device_inventory`. Queries may also see `cluster="lentago-lab"` — Firewalla's Fluent Bit sets it directly (static `Labels` directive) for the four Zeek/ACL streams; Alloy's `external_labels` sets it for `device_inventory`, which still routes through Alloy. Use both `log_source` and `cluster` if a panel is empty. Data ingested before the 2026-07-04 label migration still carries `cluster="homelab"`.
 - **Log parsing**: Zeek panels use `| json | line_format "{{.log}}" | json` to unwrap nested JSON.
 - **Template variables**: DNS & Traffic dashboards use `$device_ip` for per-device filtering.
 - **Dashboard JSON**: Grafana schema v39 — no `__inputs` or `__requires` (repo is source of truth, not “import package”).
